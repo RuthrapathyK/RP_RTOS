@@ -6,7 +6,7 @@
         {
             "label": "MyBuild",
             "type": "shell",
-            "command": "make all",
+            "command": "make build",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -17,6 +17,11 @@
             "label": "MyClean",
             "type": "shell",
             "command": "make clean"
+        }
+        {
+            "label": "MyFlash",
+            "type": "shell",
+            "command": "make flash"
         }
     ]
 }
