@@ -38,7 +38,11 @@ out.hex:out.elf
 
 # Clean the repository from generated output 
 clean:
-	del /q .\$(BUILD_FOLDER)
+	DEL "$(BUILD_FOLDER)\*.o" /S /Q
+	DEL "$(BUILD_FOLDER)\*.bin" /S /Q
+	DEL "$(BUILD_FOLDER)\*.elf" /S /Q
+	DEL "$(BUILD_FOLDER)\*.hex" /S /Q
+	DEL "$(BUILD_FOLDER)\*.map" /S /Q
 
 flash:build
 	openocd -f board/ti_ek-tm4c123gxl.cfg -c init $(OPENOCD_FLASHING_COMMANDS) -c reset -c shutdown
