@@ -28,7 +28,7 @@ startup.o: startup.c
 
 # Link the object files and generate .map file
 out.elf:$(BUILD_FOLDER)/main.o $(BUILD_FOLDER)/startup.o $(BUILD_FOLDER)/led.o
-	$(CC) -T linkerscript.ld -nostdlib $^ -o $(BUILD_DIR)$@ -Wl,-Map=$(BUILD_DIR)output.map 
+	$(CC) -T linkerscript.ld -nostdlib $^ -o $(BUILD_DIR)$@ -Wl,-Map=$(BUILD_DIR)out.map 
 
 # Generate Binary executable
 out.bin:out.elf
