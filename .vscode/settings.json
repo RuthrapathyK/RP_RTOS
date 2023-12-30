@@ -1,5 +1,6 @@
 {
     "files.associations": {
         "led.h": "c"
-    }
+    },
+    "cortex-debug.variableUseNaturalFormat": false
 }
