@@ -1,6 +1,7 @@
 CC             =  arm-none-eabi-gcc
-CFLAGS         =  -c -mcpu=cortex-m4
+CFLAGS         =  -c -g -O0 -mcpu=cortex-m4
 OBJCOPY        =  arm-none-eabi-objcopy
+OBJDUMP        =  arm-none-eabi-objdump
 
 SRC_FOLDER     =  src
 INC_FOLDER     =  inc
@@ -16,7 +17,7 @@ OPENOCD_FLASHING_COMMANDS = $(OPENOCD_INIT) $(OPENOCD_HALT) $(OPENOCD_FLASH) #$(
 VPATH = src;inc;build
 
 # Rules starts here
-build: clean main.o startup.o led.o out.elf out.bin out.hex
+build: clean main.o startup.o led.o out.elf out.bin out.hex out.s
 
 # Generate Object Files
 main.o: main.c
@@ -35,6 +36,9 @@ out.bin:out.elf
 	$(OBJCOPY) -O binary $(BUILD_DIR)$^ $(BUILD_DIR)$@
 out.hex:out.elf
 	$(OBJCOPY) -O ihex $(BUILD_DIR)$^ $(BUILD_DIR)$@
+out.s:out.elf
+	$(OBJDUMP) -d $(BUILD_DIR)$^ > $(BUILD_DIR)$@
+
 
 # Clean the repository from generated output 
 clean:

@@ -1,30 +1,23 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Cortex-Debug",
-        "cwd": "${workspaceRoot}/src",
-        "executable": "${workspaceRoot}/build/out.elf",
-        "request": "launch",
-        "type": "cortex-debug",
-        "servertype": "openocd",
-        "serverpath": "C:/Program Files (x86)/openocd-20231002/OpenOCD-20231002-0.12.0/bin/openocd.exe",
-        "configFiles":["board/ti_ek-tm4c123gxl.cfg"],
-        "interface": "swd",
-        "device": "TM4C123GXL",
-        "runToEntryPoint": "main",
-        "liveWatch": {
-            "enabled": true,
-            "samplesPerSecond": 4
-        },
-        //"preRestartCommands": [
-        //  "file ./bootloader.elf",
-        //  "load",
-         // "add-symbol-file ./build/release/release.elf 0x08002030",
-         // "enable breakpoint",
-         // "monitor reset"
-       // ]
-      }
-    ]
+  "configurations": [
+  {
+    "cwd": "${workspaceRoot}",
+    "executable": "${workspaceRoot}/build/out.elf",
+    "name": "Debug with OpenOCD",
+    "request": "launch",
+    "type": "cortex-debug",
+    "servertype": "openocd",
+    "configFiles": ["board/ek-tm4c123gxl.cfg"],
+    "searchDir": [],
+    "runToEntryPoint": "main",
+    "showDevDebugOutput": "both",
+    "symbolFiles": [
+      //"${workspaceRoot}/build/main",
+      //"${workspaceRoot}/build/led",
+      //"${workspaceRoot}/build/startup",
+      "${workspaceRoot}/build/out.elf"
+   ],
+    "preLaunchTask": "MyBuild"
   }
-  }
+  ]
+}

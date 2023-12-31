@@ -7,7 +7,7 @@ void delay(int count)
   {
     for( volatile int tem2=0;tem2<1000;tem2++)
     {
-
+        __asm("NOP");
     }
   }
 }
