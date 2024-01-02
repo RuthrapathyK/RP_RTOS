@@ -12,11 +12,12 @@
     "runToEntryPoint": "main",
     "showDevDebugOutput": "both",
     "symbolFiles": [
-      //"${workspaceRoot}/build/main",
-      //"${workspaceRoot}/build/led",
-      //"${workspaceRoot}/build/startup",
       "${workspaceRoot}/build/out.elf"
    ],
+   "liveWatch": {
+    "enabled": true,
+    "samplesPerSecond": 4
+   },
     "preLaunchTask": "MyBuild"
   }
   ]

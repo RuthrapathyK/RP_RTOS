@@ -9,20 +9,24 @@ SECTIONS
 {
     .text :
     {
-        *(.isr_vector)
+        __s_text = .;
+        *(.vector_table)
         *(.text)
-        *(.rodata)  
+        *(.rodata)
+        __e_text = .;  
     }> FLASH
 
     .data :
     {
-        __start_data = .;
+        __s_data = .;
         *(.data)
-        __end_data = .;
+        __e_data = .;
     }> SRAM AT>FLASH
 
     .bss :
     {
+        __s_bss = .;
         *(.bss)
+        __e_bss = .;
     }> SRAM
 }
