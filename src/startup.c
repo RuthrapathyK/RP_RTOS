@@ -1,9 +1,10 @@
 #include "typedef.h"
 
 #define MAX_VECTOR 155u
-#define SRAM_START_ADDRESS 0x20000000u
 
-#define STACK_SIZE_IN_BYTES 400u
+// Changing these MACROS will have impact in Linker Script
+#define SRAM_START_ADDRESS 0x20000000u
+#define STACK_SIZE_IN_BYTES 0x400u
 
 // Prototypes
 

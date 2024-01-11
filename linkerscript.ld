@@ -16,6 +16,11 @@ SECTIONS
         __e_text = .;  
     }> FLASH
 
+    .stack :
+    {
+        . = 0x400;
+    }>SRAM
+
     .data :
     {
         __s_data = .;

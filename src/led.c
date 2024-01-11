@@ -1,8 +1,6 @@
 #include "led.h"
 #include "typedef.h"
 
-uint16_t led_global_variable = 25;
-
 /* Description : This function adds delay for the value entered */
 void delay(uint32_t count)
 {
@@ -19,11 +17,11 @@ void delay(uint32_t count)
 void LED_Init(uint32_t led)
 {
     /* Set the Pin Direction as Output */
-  GPIODIR |=(led);
+  GPIOF->DIR |=(led);
   
   /*Select GPIO as pin Function */
-  GPIOAFSEL &= ~(led);
+  GPIOF->AFSEL &= ~(led);
   
   /* Configure as Digital I/O */
-  GPIODEN |=(led);
+  GPIOF->DEN |=(led);
 }
