@@ -17,7 +17,7 @@ OPENOCD_FLASHING_COMMANDS = $(OPENOCD_INIT) $(OPENOCD_HALT) $(OPENOCD_FLASH) #$(
 VPATH = src;inc;build
 
 # Rules starts here
-build: clean main.o startup.o led.o out.elf out.bin out.hex out.s
+build: clean main.o startup.o led.o timer.o out.elf out.bin out.hex out.s
 
 # Generate Object Files
 main.o: main.c
@@ -25,6 +25,8 @@ main.o: main.c
 led.o: led.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
 startup.o: startup.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
+timer.o: timer.c
 	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
 
 # Link the object files and generate .map file
