@@ -24,8 +24,11 @@ void timer_delay(void)
   TIMER0->CTL |= (1<<0);
 
   /* Poll till expiry */
-  while(!(TIMER0->CTL & 0x01))
+  while(!(TIMER0->RIS & 0x01))
   ;
+
+  /* Clear the Interrupt status*/
+  TIMER0->ICR |= 1<<0;
 }
 void main()
 {
