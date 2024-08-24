@@ -2,23 +2,26 @@
 #include "TM4C123GH6PM.h"
 #include "led.h"
 
-void timer_delay(void)
+void timer_delay(uint32_t milliseconds)
 {
     /* Ensure Timer 0 is disabled */
   if((TIMER0->CTL & 0x01) != 0)
     TIMER0->CTL &= ~(1<<0);
 
-  /* Write 0 to configuration Register */
-  TIMER0->CFG = 0x00;
+  /* Write Timer 0 as 16-bit to configuration Register */
+  TIMER0->CFG = 0x04;
 
   /* Configure Timer 0 as one-shot mode */
   TIMER0->TAMR |= 1;
 
+  /* Configure Timer 0 to Count Down */
+  TIMER0->TAMR &= ~(1<<4);
+  
   /* Set the Prescalar */
-  TIMER0->TAPR = 159;
+  TIMER0->TAPR = 255;
 
   /* Load the Interval Value */
-  TIMER0->TAILR = 1000000;
+  TIMER0->TAILR = 65500;
 
   /* Enable Timer 0*/
   TIMER0->CTL |= (1<<0);
@@ -33,6 +36,9 @@ void timer_delay(void)
 void main()
 {
 
+  // Make system Clock divisor as 0
+  SYSCTL->RCC &= ~(0xF << 23);
+
   //Enables Clock for Port F
   SYSCTL->RCGCGPIO =(1<<5);
 
@@ -44,9 +50,9 @@ void main()
   while(1)
   {
     LED_RED_OFF;
-    timer_delay();
+    timer_delay(500000);
     LED_RED_ON;
-    timer_delay();
+    timer_delay(500000);
   }
 }
 
