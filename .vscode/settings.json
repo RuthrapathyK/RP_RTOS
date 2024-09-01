@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "led.h": "c",
-        "tm4c123gh6pm.h": "c"
+        "tm4c123gh6pm.h": "c",
+        "timer.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }
