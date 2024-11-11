@@ -50,4 +50,7 @@ void delayTimer(uint32_t mSec)
 
   /* Clear the Interrupt status*/
   TIMER0->ICR |= 1<<0;
+
+  /* Ensure Timer 0 is disabled */
+  TIMER0->CTL &= ~((1<<0) | (1<<8));
 }
