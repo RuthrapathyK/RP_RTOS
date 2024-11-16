@@ -4,14 +4,19 @@
 
 uint8_t interrupt_call = 0;
 
-void Timer_0A_16_32_handler(void)
+void SysTick_handler(void)
 {
-  /* Clear the Interrupt status*/
-  TIMER0->ICR |= 1<<0;
+  /* Clear the Counter */
+  SysTick->STCURRENT = 0x00000000;
 
-  interrupt_call = 1;
+  interrupt_call = !interrupt_call;
+
+  if(interrupt_call)
+    LED_RED_OFF;
+  else
+    LED_RED_ON;
+      
 }
-
 void main()
 {
   /* Initialize the LED */
@@ -20,19 +25,11 @@ void main()
   /* Initialize the Timer used for delay */
   delayTimer_Init();
 
-  /* Interrupt configuration */
-  TIMER0->IMR |= (1<<0);
-
-  /* Enable NVIC interrupt */
-  *((uint32_t *)(0xE000E000 + 0x100)) |= (1<<19);
-
+  scheduler_Init(1000000);
 
   while(1)
   {
-    LED_RED_OFF;
-    delayTimer(5000);
-    LED_RED_ON;
-    delayTimer(5000);
+
   }
 }
 

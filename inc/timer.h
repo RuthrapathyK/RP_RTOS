@@ -19,5 +19,10 @@ void delayTimer_Init(void);
  * @param mSec delay time in milli-seconds
  */
 void delayTimer(uint32_t mSec);
-
+/**
+ * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
+ * 
+ * @param useconds Frequency of the Systick Interrupt Generation in micro-seconds
+ */
+void scheduler_Init(uint32_t useconds);
 #endif
