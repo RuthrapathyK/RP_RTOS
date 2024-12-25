@@ -1,5 +1,5 @@
 CC             =  arm-none-eabi-gcc
-CFLAGS         =  -c -g -O0 -mcpu=cortex-m4
+CFLAGS         =  -c -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 OBJCOPY        =  arm-none-eabi-objcopy
 OBJDUMP        =  arm-none-eabi-objdump
 
