@@ -20,6 +20,13 @@ void delayTimer_Init(void);
  */
 void delayTimer(uint32_t mSec);
 /**
+ * @brief The function is used to create a blocking delay. It used traditional for loop
+ *        Note: The maximum delay it can generate is 268435ms
+ * 
+ * @param mSec delay time in approximate milli-seconds
+ */
+void delayLoop(uint32_t mSec);
+/**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
  * 
  * @param useconds Frequency of the Systick Interrupt Generation in micro-seconds
