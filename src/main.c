@@ -1,6 +1,7 @@
 #include "typedef.h"
 #include "led.h"
 #include "timer.h"
+#include "button.h"
 #include <stdbool.h>
 
 #define MAX_TASK_LIMIT 3
@@ -93,10 +94,10 @@ inline void __attribute__((always_inline))store_TaskSP(volatile uint32_t **ptr)
         : "r0"                  // Clobbered register: R0
     );
 }
-void SysTick_handler(void)
+void GPIO_Port_F_handler(void)
 {
-  /* Clear the Counter */
-  SysTick->STCURRENT = 0x00000000;
+    // Clear Interrupt
+    GPIOF->ICR |= (1<<4);
 
   /* Save the updated current task's SP to its variable*/
   if((f_stack_1_init == true) ||(f_stack_2_init == true) || (f_stack_3_init == true))
@@ -130,7 +131,6 @@ void SysTick_handler(void)
   if(!((f_stack_1_init == true) && (f_stack_2_init == true) && (f_stack_3_init == true)))
     __asm("BX LR");
 }
-
 void main()
 {
   /* Initialize the LED */
@@ -141,13 +141,12 @@ void main()
   /* Initialize the Timer used for delay */
   delayTimer_Init();
   Initialize_stack();
-
-  scheduler_Init(1000000);
-
-  while(1)
-  {
-
-  }
+   
+  pushButton_Init();
+   while(1)
+   {
+     
+   }
 
 }
 

@@ -202,7 +202,7 @@ void Comp1_IRQHandler(void);
 void Comp2_IRQHandler(void);
 void SysCtrl_IRQHandler(void);
 void FlashCtrl_IRQHandler(void);
-void GPIOPortF_IRQHandler(void);
+void GPIO_Port_F_handler(void);
 void GPIOPortG_IRQHandler(void);
 void GPIOPortH_IRQHandler(void);
 void UART2_IRQHandler(void);
