@@ -25,10 +25,9 @@ void Task_1(void)
 {
   f_stack_1_init = true;
   while(1){
+    LED_BLUE_OFF;
+    LED_GREEN_OFF;
     LED_RED_ON;
-    delayLoop(1000);
-    LED_RED_OFF;
-    delayLoop(1000);
   }
 }
 
@@ -36,20 +35,19 @@ void Task_2(void)
 {
   f_stack_2_init = true;
   while(1){
+    LED_RED_OFF;
+    LED_GREEN_OFF;
     LED_BLUE_ON;
-    delayLoop(2000);
-    LED_BLUE_OFF;
-    delayLoop(2000);
+    
   }
 }
 void Task_3(void)
 {
   f_stack_3_init = true;
   while(1){
+    LED_BLUE_OFF;
+    LED_RED_OFF;  
     LED_GREEN_ON;
-    delayLoop(4000);
-    LED_GREEN_OFF;
-    delayLoop(4000);
   }  
 }
 void Initialize_stack(void)
@@ -144,7 +142,7 @@ void main()
   delayTimer_Init();
   Initialize_stack();
 
-  scheduler_Init(100);
+  scheduler_Init(1000000);
 
   while(1)
   {

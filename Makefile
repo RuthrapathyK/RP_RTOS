@@ -48,5 +48,4 @@ clean:
 	del /q .\$(BUILD_FOLDER)
 
 flash:build
-	openocd -f board/ti_ek-tm4c123gxl.cfg -c init $(OPENOCD_FLASHING_COMMANDS) -c reset -c shutdown
-	
+	openocd -f C:/MY_FOLDER/04_Learnings/02_RTOS/board/ek-tm4c123gxl.cfg -c init $(OPENOCD_FLASHING_COMMANDS) -c reset -c shutdown
