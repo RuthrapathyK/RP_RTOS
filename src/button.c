@@ -1,6 +1,8 @@
 #include "button.h"
 #include "TM4C123GH6PM.h"
 
+extern volatile uint32_t counter;
+
 void pushButton_Init(void)
 {
    //Select GPIO as Alternate Functions
@@ -30,12 +32,3 @@ void pushButton_Init(void)
   // Enable NVIC interrupt for GPIO Port F
   *((uint32_t *)(0xE000E000 + 0x100)) |= 1<<30;
 }
-
-// void GPIO_Port_F_handler(void)
-// {
-//     // Clear Interrupt
-//     GPIOF->ICR |= (1<<4);
-
-//     // Toggle LED
-//     GPIOF->DATA_Bits[2] ^= 0xFF;
-// }

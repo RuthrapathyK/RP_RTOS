@@ -7,7 +7,7 @@
 #define MAX_TASK_LIMIT 3
 
 uint8_t task_switch = 0;
-
+volatile uint32_t counter = 0;
 volatile uint32_t **curr_SP = 0;
 
 volatile uint32_t stack_1[50];
@@ -94,42 +94,60 @@ inline void __attribute__((always_inline))store_TaskSP(volatile uint32_t **ptr)
         : "r0"                  // Clobbered register: R0
     );
 }
+inline void __attribute__((always_inline))__enable_irq(void)
+{
+  __asm("CPSIE I");
+}
+
+inline void __attribute__((always_inline))__disable_irq(void)
+{
+  __asm("CPSID I");
+}
 void GPIO_Port_F_handler(void)
+{
+  // Clear Interrupt
+  GPIOF->ICR |= (1<<4);
+
+  GPIOF->DATA ^= (1<<2); //Blue LED
+}
+void SysTick_handler(void)
 {
     // Clear Interrupt
     GPIOF->ICR |= (1<<4);
 
-  /* Save the updated current task's SP to its variable*/
-  if((f_stack_1_init == true) ||(f_stack_2_init == true) || (f_stack_3_init == true))
-  {
-    store_TaskSP(curr_SP);
-  }
+    GPIOF->DATA ^= (1<<2); //Blue LED
 
-  task_switch = task_switch % MAX_TASK_LIMIT;
-	task_switch++;
+  // /* Save the updated current task's SP to its variable*/
+  // if((f_stack_1_init == true) ||(f_stack_2_init == true) || (f_stack_3_init == true))
+  // {
+  //   store_TaskSP(curr_SP);
+  // }
 
-	if(task_switch == 1)
-  {
-    curr_SP = &sp_1;
-		__asm("LDR R7,=sp_1");
-  }
-	else if(task_switch == 2)
-  {
-    curr_SP = &sp_2;	
-		__asm("LDR R7,=sp_2");
-  }
-	else
-  {
-    curr_SP = &sp_3;
-		__asm("LDR R7,=sp_3");
-  }
+  // task_switch = task_switch % MAX_TASK_LIMIT;
+	// task_switch++;
 
-  /* Load the Register SP with Task's SP */
-	__asm("LDR R7,[R7]");
-	__asm("MOV SP,R7");
+	// if(task_switch == 1)
+  // {
+  //   curr_SP = &sp_1;
+	// 	__asm("LDR R7,=sp_1");
+  // }
+	// else if(task_switch == 2)
+  // {
+  //   curr_SP = &sp_2;	
+	// 	__asm("LDR R7,=sp_2");
+  // }
+	// else
+  // {
+  //   curr_SP = &sp_3;
+	// 	__asm("LDR R7,=sp_3");
+  // }
 
-  if(!((f_stack_1_init == true) && (f_stack_2_init == true) && (f_stack_3_init == true)))
-    __asm("BX LR");
+  // /* Load the Register SP with Task's SP */
+	// __asm("LDR R7,[R7]");
+	// __asm("MOV SP,R7");
+
+  // if(!((f_stack_1_init == true) && (f_stack_2_init == true) && (f_stack_3_init == true)))
+  //   __asm("BX LR");
 }
 void main()
 {
@@ -141,11 +159,18 @@ void main()
   /* Initialize the Timer used for delay */
   delayTimer_Init();
   Initialize_stack();
-   
+  scheduler_Init(500 * 1000);
+
   pushButton_Init();
    while(1)
    {
-     
+    __disable_irq();
+    GPIOF->DATA |= (1<<3); //Green LED
+    __enable_irq();
+
+    __disable_irq();
+    GPIOF->DATA &= ~(1<<3);
+    __enable_irq();
    }
 
 }
