@@ -40,7 +40,7 @@ __attribute__ ((weak)) void ADC0_Sequence_0_handler(void);
 __attribute__ ((weak)) void ADC0_Sequence_1_handler(void);
 __attribute__ ((weak)) void ADC0_Sequence_2_handler(void);
 __attribute__ ((weak)) void ADC0_Sequence_3_handler(void);
-__attribute__ ((weak)) void Watchdog_Timers_0_and_1_handler(void);
+__attribute__ ((weak)) void Watchdog_Timers_0_1_handler(void);
 __attribute__ ((weak)) void Timer_0A_16_32_handler(void);
 __attribute__ ((weak)) void Timer_0B_16_32_handler(void);
 __attribute__ ((weak)) void Timer_1A_16_32_handler(void);
@@ -153,7 +153,7 @@ __attribute__ ((section (".vector_table"))) uint32_t * vector_table[MAX_VECTOR] 
     (uint32_t *)&ADC0_Sequence_1_handler,
     (uint32_t *)&ADC0_Sequence_2_handler,
     (uint32_t *)&ADC0_Sequence_3_handler,
-    (uint32_t *)&Watchdog_Timers_0_and_1_handler,
+    (uint32_t *)&Watchdog_Timers_0_1_handler,
     (uint32_t *)&Timer_0A_16_32_handler,
     (uint32_t *)&Timer_0B_16_32_handler,
     (uint32_t *)&Timer_1A_16_32_handler,
