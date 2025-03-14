@@ -1,8 +1,6 @@
 #include "button.h"
 #include "TM4C123GH6PM.h"
 
-extern volatile uint32_t counter;
-
 void pushButton_Init(void)
 {
    //Select GPIO as Alternate Functions

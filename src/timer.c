@@ -73,23 +73,4 @@ void delayLoop(uint32_t mSec)
     }
   }
 }
-/**
- * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
- * 
- * @param useconds Frequency of the Systick Interrupt Generation in micro-seconds
- */
-void scheduler_Init(uint32_t useconds)
-{
-  /* Load the Reload Value */
-  SysTick->STRELOAD = (useconds * 4);
 
-  /* Clear the Counter */
-  SysTick->STCURRENT = 0x00000000;
-
-  /* Select Clock source - Internalclock / 4 */
-  SysTick->STCTRL &= ~(1<<2);
-
-  /* Enable Interrupt and Start the Timer */
-  SysTick->STCTRL |= ((1<<1) | (1<<0));
-
-}
