@@ -52,18 +52,18 @@ void main()
 
   /* Initialize the Timer used for delay */
   delayTimer_Init();
-  scheduler_Init(500 * 1000);
+  //scheduler_Init(500 * 1000);
   pushButton_Init();
   createTask(0, &Task_A_Object);
    while(1)
    {
-    __disable_irq();
-    GPIOF->DATA |= LED_GREEN; //Green LED
-    __enable_irq();
+    // __disable_irq();
+    // GPIOF->DATA |= LED_GREEN; //Green LED
+    // __enable_irq();
 
-    __disable_irq();
-    GPIOF->DATA &= ~LED_GREEN;
-    __enable_irq();
+    // __disable_irq();
+    // GPIOF->DATA &= ~LED_GREEN;
+    // __enable_irq();
    }
 
 }

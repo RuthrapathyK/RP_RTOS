@@ -3,6 +3,8 @@
 
 #include "typedef.h"
 #include <stdbool.h>
+
+#define MAX_TASK_LIMIT 3
 typedef struct {
 	bool f_init;  // Flag to check whether the Task is called atleast once
 	uint32_t * stack; // Starting address of the stack and it keeps growing down

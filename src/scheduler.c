@@ -1,10 +1,15 @@
 
 #include "scheduler.h"
 #include "TM4C123GH6PM.h"
+#include <stdbool.h>
+#include "tasks.h"
 
 static uint8_t task_idx = 0;
 static volatile uint32_t **curr_SP = 0;
-
+static volatile bool f_schdInit = false;
+volatile uint32_t temp = 0;
+extern uint32_t Max_Task;
+extern Task_type Task_Table[MAX_TASK_LIMIT];
 /**
  * @brief An Inline function to store the Stack pointers for initialization
  * 
@@ -45,41 +50,34 @@ void scheduler_Init(uint32_t useconds)
  * @brief The algorithm for executing context-swtching and state saving between tasks
  * 
  */
-void SysTick_handler(void)
+void __attribute__ ((naked)) GPIO_Port_F_handler(void) 
 {
-    // Clear Systick Interrupt
-    SysTick->STCTRL &= ~(1<<16);
+    // Clear the interrupt
+    GPIOF->ICR |= (1<<4);
+    __asm__ volatile (
+      "LDR R0, SP\n\t"
+      "STR R0, %0"
+      :"=r" (temp)
+    );
+    // // Clear Systick Interrupt
+    // SysTick->STCTRL &= ~(1<<16);
+    // /* Save the updated current task's SP to its variable*/
+    // if(f_schdInit == true)
+    //   store_TaskSP(curr_SP);
+    // else
+    //   f_schdInit = true;
 
-  /* Save the updated current task's SP to its variable*/
-  if((f_stack_1_init == true) ||(f_stack_2_init == true) || (f_stack_3_init == true))
-  {
-    store_TaskSP(curr_SP);
-  }
+    // task_idx = task_idx % Max_Task;
 
-  task_idx = task_idx % MAX_TASK_LIMIT;
-	task_idx++;
+    // curr_SP = *(Task_Table[task_idx].stack_ptr);
+    // __asm("LDR R7,=curr_SP");
 
-	if(task_idx == 1)
-  {
-    curr_SP = &sp_1;
-		__asm("LDR R7,=sp_1");
-  }
-	else if(task_idx == 2)
-  {
-    curr_SP = &sp_2;	
-		__asm("LDR R7,=sp_2");
-  }
-	else
-  {
-    curr_SP = &sp_3;
-		__asm("LDR R7,=sp_3");
-  }
+    // task_idx++;
 
-  /* Load the Register SP with Task's SP */
-	__asm("LDR R7,[R7]");
-	__asm("MOV SP,R7");
+    // /* Load the Register SP with Task's SP */
+    // __asm("LDR R7,[R7]");
+    // __asm("MOV SP,R7");
 
-  if(!((f_stack_1_init == true) && (f_stack_2_init == true) && (f_stack_3_init == true)))
-    __asm("BX LR");
+      __asm("BX LR");
 }
 

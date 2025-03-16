@@ -32,11 +32,11 @@ void pushButton_Init(void)
   NVIC->EN0 |= 1<<30;
 }
 
-void GPIO_Port_F_handler(void)
-{
-  // Clear the interrupt
-  GPIOF->ICR |= (1<<4);
+// void GPIO_Port_F_handler(void)
+// {
+//   // Clear the interrupt
+//   GPIOF->ICR |= (1<<4);
   
-  //Togle the LED
-  GPIOF->DATA ^= LED_BLUE;
-}
+//   //Togle the LED
+//   GPIOF->DATA ^= LED_BLUE;
+// }

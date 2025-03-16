@@ -3,8 +3,7 @@
 #include <stdbool.h>
 #include "typedef.h"
 
-#define MAX_TASK_LIMIT 3
-static uint32_t Max_Task = 0; 
+uint32_t Max_Task = 0; 
 
 Task_type Task_Table[MAX_TASK_LIMIT] = {0,};
 
