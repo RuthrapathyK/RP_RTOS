@@ -1,5 +1,6 @@
 #include "button.h"
 #include "TM4C123GH6PM.h"
+#include "led.h"
 
 void pushButton_Init(void)
 {
@@ -28,5 +29,14 @@ void pushButton_Init(void)
   GPIOF->IM |= (1<<4);
 
   // Enable NVIC interrupt for GPIO Port F
-  *((uint32_t *)(0xE000E000 + 0x100)) |= 1<<30;
+  NVIC->EN0 |= 1<<30;
+}
+
+void GPIO_Port_F_handler(void)
+{
+  // Clear the interrupt
+  GPIOF->ICR |= (1<<4);
+  
+  //Togle the LED
+  GPIOF->DATA ^= LED_BLUE;
 }

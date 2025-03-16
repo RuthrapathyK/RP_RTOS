@@ -2,13 +2,13 @@
 #include "led.h"
 #include "timer.h"
 #include "button.h"
+#include "common.h"
+#include "scheduler.h"
+#include "tasks.h"
 #include <stdbool.h>
-
-volatile uint32_t counter = 0;
 
 void Task_1(void)
 {
-  f_stack_1_init = true;
   while(1){
     LED_BLUE_OFF;
     LED_GREEN_OFF;
@@ -18,7 +18,6 @@ void Task_1(void)
 
 void Task_2(void)
 {
-  f_stack_2_init = true;
   while(1){
     LED_RED_OFF;
     LED_GREEN_OFF;
@@ -28,14 +27,22 @@ void Task_2(void)
 }
 void Task_3(void)
 {
-  f_stack_3_init = true;
   while(1){
     LED_BLUE_OFF;
     LED_RED_OFF;  
     LED_GREEN_ON;
   }  
 }
+uint32_t task_A_stack[50]={0,};
+uint32_t task_A_stack_ptr = 0;
 
+Task_type Task_A_Object = {
+  false,
+  task_A_stack,
+  &task_A_stack_ptr,
+  50,
+  &Task_1
+};
 void main()
 {
   /* Initialize the LED */
@@ -45,19 +52,17 @@ void main()
 
   /* Initialize the Timer used for delay */
   delayTimer_Init();
-  Initialize_stack();
-  //scheduler_Init(500 * 1000);
-
+  scheduler_Init(500 * 1000);
   pushButton_Init();
-
+  createTask(0, &Task_A_Object);
    while(1)
    {
     __disable_irq();
-    GPIOF->DATA |= (1<<3); //Green LED
+    GPIOF->DATA |= LED_GREEN; //Green LED
     __enable_irq();
 
     __disable_irq();
-    GPIOF->DATA &= ~(1<<3);
+    GPIOF->DATA &= ~LED_GREEN;
     __enable_irq();
    }
 
