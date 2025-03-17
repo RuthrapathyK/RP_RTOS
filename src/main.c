@@ -6,6 +6,7 @@
 #include "scheduler.h"
 #include "tasks.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 void Task_1(void)
 {
@@ -34,14 +35,26 @@ void Task_3(void)
   }  
 }
 uint32_t task_A_stack[50]={0,};
-uint32_t task_A_stack_ptr = 0;
+uint32_t task_B_stack[50]={0,};
+uint32_t task_C_stack[50]={0,};
 
 Task_type Task_A_Object = {
-  false,
   task_A_stack,
-  &task_A_stack_ptr,
+  NULL,
   50,
   &Task_1
+};
+Task_type Task_B_Object = {
+  task_B_stack,
+  NULL,
+  50,
+  &Task_2
+};
+Task_type Task_C_Object = {
+  task_C_stack,
+  NULL,
+  50,
+  &Task_3
 };
 void main()
 {
@@ -52,9 +65,11 @@ void main()
 
   /* Initialize the Timer used for delay */
   delayTimer_Init();
-  //scheduler_Init(500 * 1000);
+  scheduler_Init(1000 * 1000);
   pushButton_Init();
-  createTask(0, &Task_A_Object);
+  createTask(&Task_A_Object);
+  createTask(&Task_B_Object);
+  createTask(&Task_C_Object);
    while(1)
    {
     // __disable_irq();

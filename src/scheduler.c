@@ -7,7 +7,7 @@
 static uint8_t task_idx = 0;
 static volatile uint32_t **curr_SP = 0;
 static volatile bool f_schdInit = false;
-volatile uint32_t temp = 0;
+uint32_t * temp = 0;
 extern uint32_t Max_Task;
 extern Task_type Task_Table[MAX_TASK_LIMIT];
 /**
@@ -50,34 +50,29 @@ void scheduler_Init(uint32_t useconds)
  * @brief The algorithm for executing context-swtching and state saving between tasks
  * 
  */
-void __attribute__ ((naked)) GPIO_Port_F_handler(void) 
+void __attribute__ ((naked))SysTick_handler(void) 
 {
-    // Clear the interrupt
-    GPIOF->ICR |= (1<<4);
-    __asm__ volatile (
-      "LDR R0, SP\n\t"
-      "STR R0, %0"
-      :"=r" (temp)
-    );
-    // // Clear Systick Interrupt
-    // SysTick->STCTRL &= ~(1<<16);
-    // /* Save the updated current task's SP to its variable*/
-    // if(f_schdInit == true)
-    //   store_TaskSP(curr_SP);
-    // else
-    //   f_schdInit = true;
+    // Clear Systick Interrupt
+    SysTick->STCTRL &= ~(1<<16);
 
-    // task_idx = task_idx % Max_Task;
+    __asm("MOV %0, SP":"=r" (temp)); // Get the current SP and store it in temp variable;
 
-    // curr_SP = *(Task_Table[task_idx].stack_ptr);
-    // __asm("LDR R7,=curr_SP");
+    if(f_schdInit == false)
+    {
+      f_schdInit = true;
+    }
+    else
+    {
+      Task_Table[task_idx].stack_ptr = temp; // Save the current Task's SP with the current SP
+      task_idx++;
+    }
 
-    // task_idx++;
+    task_idx %= Max_Task;
 
-    // /* Load the Register SP with Task's SP */
-    // __asm("LDR R7,[R7]");
-    // __asm("MOV SP,R7");
+    temp = Task_Table[task_idx].stack_ptr; // Get the next Task's SP
+    
+    __asm("MOV SP, %0"::"r" (temp)); 
 
-      __asm("BX LR");
+    __asm("BX LR");
 }
 

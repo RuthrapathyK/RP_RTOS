@@ -5,7 +5,7 @@
 
 uint32_t Max_Task = 0; 
 
-Task_type Task_Table[MAX_TASK_LIMIT] = {0,};
+volatile Task_type Task_Table[MAX_TASK_LIMIT] = {0,};
 
 static void initStack(Task_type * tsk)
 {
@@ -22,7 +22,7 @@ static void initStack(Task_type * tsk)
 	*(--tsk->stack_ptr) = 0x00;//R1
 	*(--tsk->stack_ptr) = 0x00;//R0
 }
-void createTask(uint32_t task_id, Task_type * task)
+void createTask(Task_type * task)
 {
 	// Initialize the Stack of the Task with default register values
 	initStack(task);
