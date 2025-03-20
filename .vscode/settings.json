@@ -1,12 +1,14 @@
 {
     "files.associations": {
         "*.c": "c",
+        "*.h": "c",
         "led.h": "c",
         "tm4c123gh6pm.h": "c",
         "timer.h": "c",
         "typedef.h": "c",
         "button.h": "c",
-        "arm_cortex_m4f.h": "c"
+        "arm_cortex_m4f.h": "c",
+        "common.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false
 }

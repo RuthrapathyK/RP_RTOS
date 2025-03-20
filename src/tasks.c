@@ -1,14 +1,21 @@
 #include "tasks.h"
 
-#include <stdbool.h>
-#include "typedef.h"
+#include "common.h"
+#include "common.h"
 
 uint32_t Max_Task = 0; 
 
 volatile Task_type Task_Table[MAX_TASK_LIMIT] = {0,};
-
-static void initStack(Task_type * tsk)
+/**
+ * @brief The function will initialize the private stack of the task with the initial values
+ * 
+ * @param tsk Pointer to the Task
+ */
+static void Init_TaskStack(Task_type * tsk)
 {
+	// Check for Valid Input Parameters
+	ASSERT((tsk != NULL) && (tsk->stack != NULL) && (tsk->TaskfuncPtr != NULL));
+
 	// Initialize the Stack Pointer for the Task
   	tsk->stack_ptr = &(tsk->stack[tsk->stack_size]);
 
@@ -21,13 +28,37 @@ static void initStack(Task_type * tsk)
 	*(--tsk->stack_ptr) = 0x00;//R2
 	*(--tsk->stack_ptr) = 0x00;//R1
 	*(--tsk->stack_ptr) = 0x00;//R0
+	*(--tsk->stack_ptr) = 0x00;//R11
+	*(--tsk->stack_ptr) = 0x00;//R10
+	*(--tsk->stack_ptr) = 0x00;//R9
+	*(--tsk->stack_ptr) = 0x00;//R8
+	*(--tsk->stack_ptr) = 0x00;//R7
+	*(--tsk->stack_ptr) = 0x00;//R6
+	*(--tsk->stack_ptr) = 0x00;//R5
+	*(--tsk->stack_ptr) = 0x00;//R4
 }
-void createTask(Task_type * task)
+/**
+ * @brief Initialize  and Schedule the New Task
+ * 
+ * @param stackAddr Starting address of the Stack pointer 
+ * @param stackSize_words Total Size of Stack in Words(i.e 32 bits)
+ * @param taskPtr Address of the Task Function
+ */
+void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)())
 {
+	// Check for valid Task Input parameters
+	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words != 0));
+
+	// Load the Input parameters to Temporary Task Object
+	Task_type TaskObj = {
+		stackAddr,
+		NULL,
+		stackSize_words,
+		taskPtr};
+
 	// Initialize the Stack of the Task with default register values
-	initStack(task);
+	Init_TaskStack(&TaskObj);
 
 	// Load the Task config to the Table and increament the Maximum Task number
-	Task_Table[Max_Task++] = *task;
-
+	Task_Table[Max_Task++] = TaskObj;
 }

@@ -1,5 +1,5 @@
 #include "led.h"
-#include "typedef.h"
+#include "common.h"
 
 /* Description : This function initializes all the LEDS */
 void LED_Init(uint32_t led)

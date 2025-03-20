@@ -1,61 +1,53 @@
-#include "typedef.h"
+#include "common.h"
 #include "led.h"
 #include "timer.h"
 #include "button.h"
 #include "common.h"
 #include "scheduler.h"
 #include "tasks.h"
-#include <stdbool.h>
-#include <stddef.h>
 
-void Task_1(void)
+#define SCHEDULE_TIME_MS 10
+
+#define SCHEDULE_TIME_FACTOR 1000
+#define SCHEDULE_TIME_US (SCHEDULE_TIME_FACTOR * SCHEDULE_TIME_MS)
+
+#define TASK_A_STACK_SIZE 200
+#define TASK_B_STACK_SIZE 200
+#define TASK_C_STACK_SIZE 200
+
+uint32_t stack_TaskA[TASK_A_STACK_SIZE]={0};
+uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
+uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
+
+void Task_A(void)
 {
   while(1){
-    LED_BLUE_OFF;
-    LED_GREEN_OFF;
     LED_RED_ON;
+    delayLoop(1000);
+    LED_RED_OFF;
+    delayLoop(1000);
   }
 }
 
-void Task_2(void)
+void Task_B(void)
 {
   while(1){
-    LED_RED_OFF;
-    LED_GREEN_OFF;
     LED_BLUE_ON;
-    
+    delayLoop(2000);
+    LED_BLUE_OFF;
+    delayLoop(2000);
   }
 }
-void Task_3(void)
+void Task_C(void)
 {
-  while(1){
-    LED_BLUE_OFF;
-    LED_RED_OFF;  
+  while(1){ 
     LED_GREEN_ON;
+    delayLoop(4000);
+    LED_GREEN_OFF;
+    delayLoop(4000);
   }  
 }
-uint32_t task_A_stack[50]={0,};
-uint32_t task_B_stack[50]={0,};
-uint32_t task_C_stack[50]={0,};
 
-Task_type Task_A_Object = {
-  task_A_stack,
-  NULL,
-  50,
-  &Task_1
-};
-Task_type Task_B_Object = {
-  task_B_stack,
-  NULL,
-  50,
-  &Task_2
-};
-Task_type Task_C_Object = {
-  task_C_stack,
-  NULL,
-  50,
-  &Task_3
-};
 void main()
 {
   /* Initialize the LED */
@@ -65,21 +57,20 @@ void main()
 
   /* Initialize the Timer used for delay */
   delayTimer_Init();
-  scheduler_Init(1000 * 1000);
-  pushButton_Init();
-  createTask(&Task_A_Object);
-  createTask(&Task_B_Object);
-  createTask(&Task_C_Object);
-   while(1)
-   {
-    // __disable_irq();
-    // GPIOF->DATA |= LED_GREEN; //Green LED
-    // __enable_irq();
 
-    // __disable_irq();
-    // GPIOF->DATA &= ~LED_GREEN;
-    // __enable_irq();
-   }
+  /* Add Task for Scheduling */
+  createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A);
+  createTask(stack_TaskB,TASK_B_STACK_SIZE,&Task_B);
+  createTask(stack_TaskC,TASK_C_STACK_SIZE,&Task_C);
+
+  /* Initialize the Scheduler */
+  scheduler_Init(SCHEDULE_TIME_US);
+  pushButton_Init();
+
+  while(1)
+  {
+    
+  }
 
 }
 

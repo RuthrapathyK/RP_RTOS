@@ -1,6 +1,6 @@
 #ifndef __TIMER_HH
 #define __TIMER_HH
-#include "typedef.h"
+#include "common.h"
 
 /****************************************FUNCTION PROTOTYPES**********************************************/
 

@@ -1,8 +1,8 @@
 #ifndef __TASK_H
 #define __TASK_H
 
-#include "typedef.h"
-#include <stdbool.h>
+#include "common.h"
+#include "common.h"
 
 #define MAX_TASK_LIMIT 3
 typedef struct {
@@ -12,5 +12,6 @@ typedef struct {
 	void (*TaskfuncPtr)(void); // Address of the Application task function
 } Task_type;
 
-void createTask(Task_type * task);
+void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)());
+
 #endif

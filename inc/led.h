@@ -1,7 +1,7 @@
 #ifndef __LED__H
 #define __LED__H
 
-#include "typedef.h"
+#include "common.h"
 #include "TM4C123GH6PM.h"
 
 #define LED_BLUE        (1<<2)

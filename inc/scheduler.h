@@ -1,7 +1,7 @@
 #ifndef __SCHEDULER_H
 #define __SCHEDULER_H
 
-#include "typedef.h"
+#include "common.h"
 
 /**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
