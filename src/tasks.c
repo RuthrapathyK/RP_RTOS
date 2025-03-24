@@ -42,12 +42,13 @@ static void Init_TaskStack(Task_type * tsk)
  * 
  * @param stackAddr Starting address of the Stack pointer 
  * @param stackSize_words Total Size of Stack in Words(i.e 32 bits)
+ * 						  Minimum 16 word size is required for scheduler opeartion itself. So choose >16
  * @param taskPtr Address of the Task Function
  */
 void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)())
 {
 	// Check for valid Task Input parameters
-	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words != 0));
+	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words > 16));
 
 	// Load the Input parameters to Temporary Task Object
 	Task_type TaskObj = {

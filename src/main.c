@@ -23,9 +23,9 @@ void Task_A(void)
 {
   while(1){
     LED_RED_ON;
-    delayLoop(1000);
+    delay(1000);
     LED_RED_OFF;
-    delayLoop(1000);
+    delay(1000);
   }
 }
 
@@ -33,18 +33,18 @@ void Task_B(void)
 {
   while(1){
     LED_BLUE_ON;
-    delayLoop(2000);
+    delay(2000);
     LED_BLUE_OFF;
-    delayLoop(2000);
+    delay(2000);
   }
 }
 void Task_C(void)
 {
   while(1){ 
     LED_GREEN_ON;
-    delayLoop(4000);
+    delay(4000);
     LED_GREEN_OFF;
-    delayLoop(4000);
+    delay(4000);
   }  
 }
 
@@ -55,8 +55,8 @@ void main()
   LED_Init(LED_BLUE);
   LED_Init(LED_GREEN);
 
-  /* Initialize the Timer used for delay */
-  delayTimer_Init();
+  /* Initialize the System Timer */
+  SystemDelay_Init(1);
 
   /* Add Task for Scheduling */
   createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A);

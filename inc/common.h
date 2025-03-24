@@ -5,12 +5,12 @@
 #include <stdbool.h>
 #include "typedef.h"
 
-#define ASSERT(x) do{ \
+#define ASSERT(x) { \
   if(!(x)) \
     while(1){ \
       __asm("BKPT");\
     }\
-}while(0)
+}
 
 
 inline void __attribute__((always_inline))__enable_irq(void)
