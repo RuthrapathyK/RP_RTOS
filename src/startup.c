@@ -293,4 +293,43 @@ void Reset_handler(void)
     //Call main
     main();
 }
-
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void NMI_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void HardFault_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void MemManage_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void BusFault_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void UsageFault_handler(void)
+{
+    while(1);
+}

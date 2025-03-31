@@ -37,6 +37,7 @@ void scheduler_Init(uint32_t useconds)
 
 /**
  * @brief The algorithm for executing context-swtching and State saving between tasks
+ *        The time taken for execution is ~7.2us
  * 
  */
 void __attribute__ ((naked))SysTick_handler(void) 
