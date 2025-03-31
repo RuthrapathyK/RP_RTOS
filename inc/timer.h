@@ -33,7 +33,7 @@ void delayLoop(uint32_t mSec);
  * 
  * @param mSec Periodic counter increament time
  */
-void SystemDelay_Init(uint32_t mSec);
+void SystemTimer_Init(uint32_t mSec);
 /**
  * @brief The Function creates a delay of input time in milliseconds without blocking the Timer Peripheral
  * 

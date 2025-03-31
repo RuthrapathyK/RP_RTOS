@@ -7,14 +7,14 @@
 uint8_t task_idx = 0;
 static volatile bool f_schdInit = false;
 uint32_t * tem_sp = 0;
-extern uint32_t Max_Task;
+extern uint32_t Max_SchTask;
 extern Task_type Task_Table[MAX_TASK_LIMIT];
 
 /**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
  * 
  * @param useconds Frequency of the Systick Interrupt Generation in micro-seconds
- *        Note: Scheduler Algorithm will take ~8.5us to complete execution. So choose useconds > 10
+ *        Note: Scheduler Algorithm will take ~9.5us to complete execution. So choose useconds > 10
  *              The max value is 4194303(i.e 4.194 seconds) 
  */
 void scheduler_Init(uint32_t useconds)
@@ -37,7 +37,7 @@ void scheduler_Init(uint32_t useconds)
 
 /**
  * @brief The algorithm for executing context-swtching and State saving between tasks
- *        The time taken for execution is ~7.2us
+ *        The time taken for execution is ~9.5us
  * 
  */
 void __attribute__ ((naked))SysTick_handler(void) 
@@ -53,6 +53,9 @@ void __attribute__ ((naked))SysTick_handler(void)
       // Get the current SP and store it in tem_sp variable;
       __asm("MOV %0, SP":"=r" (tem_sp)::"%0");
 
+      // Check if Stack Overflow occured for the current Task
+      ASSERT(tem_sp >= Task_Table[task_idx].stack);
+
       // Save the current Task's SP
       Task_Table[task_idx].stack_ptr = tem_sp;
       task_idx++;
@@ -64,7 +67,7 @@ void __attribute__ ((naked))SysTick_handler(void)
     }
 
     // Round off only the created task
-    task_idx %= Max_Task;
+    task_idx %= Max_SchTask;
 
     // Get the next Task's SP
     tem_sp = Task_Table[task_idx].stack_ptr; 

@@ -333,3 +333,11 @@ void UsageFault_handler(void)
 {
     while(1);
 }
+/**
+ * @brief //TODO: Implement it for Scheduler
+ * 
+ */
+void PendSV_handler(void)
+{
+  
+}

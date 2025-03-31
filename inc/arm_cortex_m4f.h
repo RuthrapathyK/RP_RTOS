@@ -78,12 +78,66 @@ typedef struct{
     volatile uint32_t SWTRIG;
 } NVIC_Type;
 
+typedef struct {
+    volatile uint32_t CPUID;
+    volatile uint32_t INTCTRL;
+    volatile uint32_t VTABLE;
+    volatile uint32_t APINT;
+    volatile uint32_t SYSCTRL;
+    volatile uint32_t CFGCTRL;
+    volatile uint32_t SYSPRI1;
+    volatile uint32_t SYSPRI2;
+    volatile uint32_t SYSPRI3;
+    volatile uint32_t SYSHNDCTRL;
+    volatile uint32_t FAULTSTAT;
+    volatile uint32_t HFAULTSTAT;
+    volatile uint32_t Reserved_1;
+    volatile uint32_t MMADDR;
+    volatile uint32_t FAULTADDR;
+}SCB_Type;
+typedef struct {
+    volatile uint32_t TYPE;
+    volatile uint32_t CTRL;
+    volatile uint32_t NUMBER;
+    volatile uint32_t BASE;
+    volatile uint32_t ATTR;
+    volatile uint32_t BASE1;
+    volatile uint32_t ATTR1;
+    volatile uint32_t BASE2;
+    volatile uint32_t ATTR2;
+    volatile uint32_t BASE3;
+    volatile uint32_t ATTR3;
+} MPU_Type;
+
+typedef struct {
+    volatile uint32_t FPCC;
+    volatile uint32_t FPCA;
+    volatile uint32_t FPDSC;
+} FPU_Type;
+typedef struct {
+    volatile uint32_t ACTLR;
+}SCB2_Type;
+
+typedef struct 
+{
+    volatile uint32_t CPAC;
+}FPU2_Type;
 
 #define CORTEX_PERIPHERAL_BASE  (0xE000E000UL)
 #define SYSTICK_BASE            (CORTEX_PERIPHERAL_BASE + 0x010UL)
 #define NVIC_BASE               (CORTEX_PERIPHERAL_BASE + 0x100UL)
+#define SCB_BASE                (CORTEX_PERIPHERAL_BASE + 0xD00UL)
+#define SCB2_BASE               (CORTEX_PERIPHERAL_BASE + 0x008UL)
+#define MPU_BASE                (CORTEX_PERIPHERAL_BASE + 0xD90UL)
+#define FPU_BASE                (CORTEX_PERIPHERAL_BASE + 0xF34UL)
+#define FPU2_BASE               (CORTEX_PERIPHERAL_BASE + 0xD88UL)
 
 #define SysTick ((SysTick_Type *)SYSTICK_BASE)
-#define NVIC ((NVIC_Type *)NVIC_BASE)
+#define NVIC    ((NVIC_Type *)NVIC_BASE)
+#define SCB     ((SCB_Type *)SCB_BASE)
+#define SCB2    ((SCB2_Type *)SCB2_BASE)
+#define MPU     ((MPU_Type *)MPU_BASE)
+#define FPU     ((FPU_Type *)FPU_BASE)
+#define FPU2    ((FPU2_Type *)FPU2_BASE)
 
 #endif

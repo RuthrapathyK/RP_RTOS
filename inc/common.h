@@ -4,6 +4,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "typedef.h"
+#include "arm_cortex_m4f.h"
+
+#define PENDSV_TRIGGER  SCB->INTCTRL |= 1<<28
+#define PENDSV_CLEAR    SCB->INTCTRL |= 1<<27
+#define SYSTICK_TRIGGER SCB->INTCTRL |= 1<<26
+#define SYSTICK_CLEAR   SCB->INTCTRL |= 1<<25
 
 #define ASSERT(x) { \
   if(!(x)) \

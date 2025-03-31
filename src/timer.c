@@ -96,7 +96,7 @@ void Timer_0A_16_32_handler(void)
  * 
  * @param mSec Periodic counter increament time
  */
-void SystemDelay_Init(uint32_t mSec)
+void SystemTimer_Init(uint32_t mSec)
 {
   /* Check of Preconditions */
   ASSERT(mSec <= 268435);

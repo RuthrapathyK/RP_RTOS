@@ -4,7 +4,8 @@
 #include "common.h"
 #include "common.h"
 
-#define MAX_TASK_LIMIT 3
+#define MAX_TASK_LIMIT 10
+
 typedef struct {
 	uint32_t * stack; // Starting address of the stack and it keeps growing down
 	uint32_t * stack_ptr; // Address of the variable that acts as Stack Pointer

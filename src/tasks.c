@@ -3,7 +3,7 @@
 #include "common.h"
 #include "common.h"
 
-uint32_t Max_Task = 0; 
+uint32_t Max_SchTask = 0; 
 
 volatile Task_type Task_Table[MAX_TASK_LIMIT] = {0,};
 /**
@@ -48,7 +48,7 @@ static void Init_TaskStack(Task_type * tsk)
 void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)())
 {
 	// Check for valid Task Input parameters
-	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words > 16));
+	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words > 16) && (Max_SchTask < MAX_TASK_LIMIT));
 
 	// Load the Input parameters to Temporary Task Object
 	Task_type TaskObj = {
@@ -61,5 +61,5 @@ void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)()
 	Init_TaskStack(&TaskObj);
 
 	// Load the Task config to the Table and increament the Maximum Task number
-	Task_Table[Max_Task++] = TaskObj;
+	Task_Table[Max_SchTask++] = TaskObj;
 }

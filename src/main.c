@@ -23,9 +23,7 @@ void Task_A(void)
 {
   while(1){
     LED_RED_ON;
-    delay(1000);
     LED_RED_OFF;
-    delay(1000);
   }
 }
 
@@ -33,19 +31,15 @@ void Task_B(void)
 {
   while(1){
     LED_BLUE_ON;
-    delay(2000);
     LED_BLUE_OFF;
-    delay(2000);
   }
 }
 void Task_C(void)
 {
-  while(1){ 
+  while(1){
     LED_GREEN_ON;
-    delay(4000);
     LED_GREEN_OFF;
-    delay(4000);
-  }  
+  }    
 }
 
 void main()
@@ -56,12 +50,19 @@ void main()
   LED_Init(LED_GREEN);
 
   /* Initialize the System Timer */
-  SystemDelay_Init(1);
+  SystemTimer_Init(1);
 
   /* Add Task for Scheduling */
   createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A);
   createTask(stack_TaskB,TASK_B_STACK_SIZE,&Task_B);
   createTask(stack_TaskC,TASK_C_STACK_SIZE,&Task_C);
+  
+  /* Set the Systick to Low Pririty than PendSV */
+  SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
+  SCB->SYSPRI3 &= ~(0x07 << 21);  // PendSV
+
+  SCB->SYSPRI3 |= (0x01 << 29); // SysTick
+  SCB->SYSPRI3 |= (0x01 << 21); // PendSV
 
   /* Initialize the Scheduler */
   scheduler_Init(SCHEDULE_TIME_US);
