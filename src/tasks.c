@@ -52,10 +52,12 @@ void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)()
 
 	// Load the Input parameters to Temporary Task Object
 	Task_type TaskObj = {
-		stackAddr,
-		NULL,
-		stackSize_words,
-		taskPtr};
+		.stack = stackAddr,
+		.stack_ptr = NULL,
+		.stack_size = stackSize_words,
+		.TaskfuncPtr = taskPtr,
+		.TaskState = Task_Ready
+	};
 
 	// Initialize the Stack of the Task with default register values
 	Init_TaskStack(&TaskObj);

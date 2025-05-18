@@ -40,5 +40,9 @@ void SystemTimer_Init(uint32_t mSec);
  * @param mSec Delay time in approximate milli-seconds
  */
 void delay(uint32_t mSec);
-
+/**
+ * @brief An inline function that returns the system time to the task called
+ * 
+ */
+uint32_t getSystemTime(void);
 #endif

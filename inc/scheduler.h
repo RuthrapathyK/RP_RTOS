@@ -10,4 +10,9 @@
  */
 void scheduler_Init(uint32_t useconds);
 
+/**
+ * @brief This function generates Scheduler delay
+ * 
+ */
+void OS_delay(uint32_t mSec);
 #endif

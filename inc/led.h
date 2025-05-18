@@ -18,7 +18,6 @@
 #define LED_GREEN_OFF   GPIOF->DATA_Bits[8] = 0x00
 #define LED_GREEN_TOGGLE GPIOF->DATA ^= LED_GREEN;
 
-void delay(uint32_t);
 void LED_Init(uint32_t);
 
 #endif
