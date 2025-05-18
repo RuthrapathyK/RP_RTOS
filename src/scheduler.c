@@ -62,31 +62,29 @@ void __attribute__ ((naked))SysTick_handler(void)
 
       // Save the current Task's SP
       Task_Table[task_idx].stack_ptr = tem_sp;
-      task_idx++;
     }
     else
     {
       // SP not saved while called for 1st time
       f_schdInit = true;
     }
-    // Derive the States of the Task
+
+    // Derive the States of all Tasks
     for(schIter = 0; schIter < Max_SchTask; schIter++)
     {
       if((Task_Table[schIter].TaskState == Task_Sleep) && (Task_Table[schIter].nxtSchedTime <= SystemTime_Count))
         Task_Table[schIter].TaskState = Task_Ready;
     }
-    // Choose which task to schedule. If no task is in Ready state then the next task is scheduled
+
+    // Choose which task to schedule based on priority. If no task is in Ready state then schedule idleTask
     for(schIter = 0; schIter < Max_SchTask; schIter++)
     {
-      task_idx %= Max_SchTask;
-
-      if(Task_Table[task_idx].TaskState == Task_Ready)
-        break;
-      else
-        task_idx++;
+      if(Task_Table[schIter].TaskState == Task_Ready)
+      {
+       task_idx = schIter;
+       break;
+      }
     }
-
-    task_idx %= Max_SchTask;
 
     // Get the next Task's SP
     tem_sp = Task_Table[task_idx].stack_ptr; 
@@ -114,11 +112,4 @@ void OS_delay(uint32_t mSec)
   /* Trigger the scheduler */
   //SysTick->STCURRENT = 0x00000000;
   SCB->INTCTRL |= 1 << 26;
-
-  /* Idle Time of the CPU */
-  while(Task_Table[task_idx].nxtSchedTime >= getSystemTime())
-  {
-    TESTPIN_ON;
-    TESTPIN_OFF;
-  }
 }

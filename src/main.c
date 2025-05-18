@@ -14,10 +14,12 @@
 #define TASK_A_STACK_SIZE 200
 #define TASK_B_STACK_SIZE 200
 #define TASK_C_STACK_SIZE 200
+#define IDLE_TASK_STACK_SIZE 50
 
 uint32_t stack_TaskA[TASK_A_STACK_SIZE]={0};
 uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
 uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
+uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
 void Task_A(void)
 {
@@ -47,7 +49,13 @@ void Task_C(void)
     OS_delay(4000);
   }    
 }
-
+void IdleTask(void)
+{
+  while(1){
+    TESTPIN_ON;
+    TESTPIN_OFF;
+  }
+}
 void main()
 {
   /* Initialize the LED */
@@ -62,6 +70,7 @@ void main()
   createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A);
   createTask(stack_TaskB,TASK_B_STACK_SIZE,&Task_B);
   createTask(stack_TaskC,TASK_C_STACK_SIZE,&Task_C);
+  createTask(stack_TaskC,IDLE_TASK_STACK_SIZE,&IdleTask);
   
   /* Set the Systick and PendSV to have Priority 1*/
   SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
