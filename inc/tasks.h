@@ -15,11 +15,12 @@ typedef struct {
 	uint32_t * stack; // Starting address of the stack and it keeps growing down
 	uint32_t * stack_ptr; // Address of the variable that acts as Stack Pointer
 	uint32_t stack_size; // Total size of the Stack
+	uint8_t priority;
 	void (*TaskfuncPtr)(void); // Address of the Application task function
 	uint32_t nxtSchedTime; // Timestamp to again make the task ready
 	task_state_e TaskState; // Current State of the Task
 } Task_type;
 
-void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)());
+void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio);
 
 #endif
