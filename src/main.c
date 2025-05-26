@@ -14,7 +14,7 @@
 #define TASK_A_STACK_SIZE 200
 #define TASK_B_STACK_SIZE 200
 #define TASK_C_STACK_SIZE 200
-#define IDLE_TASK_STACK_SIZE 50
+#define IDLE_TASK_STACK_SIZE 200
 
 uint32_t stack_TaskA[TASK_A_STACK_SIZE]={0};
 uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};

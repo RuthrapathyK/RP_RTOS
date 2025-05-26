@@ -10,6 +10,7 @@ SECTIONS
     .text :
     {
         __s_text = .;
+        *(.stack_pointer)
         *(.vector_table)
         *(.text)
         *(.rodata)

@@ -117,9 +117,9 @@ extern uint8_t __e_data;
 extern uint8_t __s_bss;
 extern uint8_t __e_bss;
 
+__attribute__ ((section (".stack_pointer"))) const uint32_t Stack_Pointer = SRAM_START_ADDRESS+STACK_SIZE_IN_BYTES;
 
-__attribute__ ((section (".vector_table"))) uint32_t * vector_table[MAX_VECTOR] = {
-    (uint32_t *)SRAM_START_ADDRESS+STACK_SIZE_IN_BYTES, 
+__attribute__ ((section (".vector_table"))) uint32_t * vector_table[MAX_VECTOR] = { 
     (uint32_t *)&Reset_handler,                         
     (uint32_t *)&NMI_handler,
     (uint32_t *)&HardFault_handler,
@@ -281,13 +281,13 @@ void Reset_handler(void)
     //Initialize .data section with initial values at SRAM 
     for(uint32_t i = 0; i < &__e_data - &__s_data; i++)
     {
-        *(&__s_data+i) =*(&__e_text+i);
+        *(((uint8_t *)&__s_data) + i) =*(((uint8_t *)&__e_text) + i);
     }
 
     //Initialize .bss section with 0 at SRAM
     for(uint32_t i = 0; i < &__e_bss - &__s_bss; i++)
     {
-        *(&__s_bss+i) = 0;
+        *(((uint8_t *)&__s_bss) + i) = 0;
     }
 
     //Call main

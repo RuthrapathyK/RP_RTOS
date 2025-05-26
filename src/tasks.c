@@ -47,7 +47,7 @@ static void Add_to_PrioTaskTable(Task_type * taskObject)
 	Task_type tempObj_1, tempObj_2;
 
 	// Check the input parameters are within range
-	ASSERT(taskObject != NULL);
+	ASSERT((taskObject != NULL) && (taskObject->priority != 0));
 	
 	// Increament the Maximum Scheduled Task counter
 	Max_SchTask++;
@@ -84,6 +84,7 @@ static void Add_to_PrioTaskTable(Task_type * taskObject)
  * @param stackSize_words Total Size of Stack in Words(i.e 32 bits)
  * 						  Minimum 16 word size is required for scheduler opeartion itself. So choose >16
  * @param taskPtr Address of the Task Function
+ * @param prio Priority of the Task. 1 is the highest priority and 255 is the lowest priority
  */
 void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio)
 {
