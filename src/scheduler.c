@@ -105,11 +105,12 @@ void __attribute__ ((naked))SysTick_handler(void)
  */
 void OS_delay(uint32_t mSec)
 {
+  /* Note the Wakeup time */
   PrioTask_Table[task_idx].nxtSchedTime = getSystemTime() + mSec; 
   
+  /* Change the task state to Sleep */
   PrioTask_Table[task_idx].TaskState = Task_Sleep;
   
   /* Trigger the scheduler */
-  //SysTick->STCURRENT = 0x00000000;
   SCB->INTCTRL |= 1 << 26;
 }
