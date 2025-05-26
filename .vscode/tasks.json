@@ -6,7 +6,7 @@
         {
             "label": "MyBuild",
             "type": "shell",
-            "command": "make build",
+            "command": ["cd ${fileDirname} && make build"],
             "problemMatcher": [],
             "group": {
                 "kind": "build",
@@ -16,12 +16,12 @@
         {
             "label": "MyClean",
             "type": "shell",
-            "command": "make clean"
+            "command": "cd ${fileDirname} && make clean"
         }
         {
             "label": "MyFlash",
             "type": "shell",
-            "command": "make flash"
+            "command": "cd ${fileDirname} && make flash"
         }
     ]
 }

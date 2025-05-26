@@ -23,6 +23,7 @@ uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
 void Task_A(void)
 {
+<<<<<<< HEAD:src/main.c
   while(1){
     for(uint32_t iter = 0; iter < 100 * 1000; iter++)
     {
@@ -30,6 +31,34 @@ void Task_A(void)
       LED_RED_OFF;
     }
     OS_delay(1000);
+=======
+
+  //Enables Clock for Port F
+  SYSCTL->RCGCGPIO =(1<<5);
+  
+  LED_Init(LED_RED);
+  LED_Init(LED_BLUE);
+  LED_Init(LED_GREEN);
+
+  while(1)
+  {
+    //Toggle the LEDs
+    LED_RED_ON;
+     delay(1000);
+    LED_RED_OFF;
+    delay(1000);
+    
+    LED_BLUE_ON;
+    delay(1000);
+    LED_BLUE_OFF;
+    delay(1000);
+    
+    LED_GREEN_ON;
+    delay(1000);
+    LED_GREEN_OFF;
+    delay(1000);
+    
+>>>>>>> main:00_LED_Blinking/src/main.c
   }
 }
 

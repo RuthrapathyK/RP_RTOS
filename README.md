@@ -12,3 +12,4 @@ Visual Studio Code Shortcuts:
     1.ctrl+shift+c = cleaning the build folder
     2.ctrl+shift+b = cleaning, compiling and linking the source code
     3.ctrl+shift+f = cleaning, compiling, linking and flashing the binary to the EK-TM4C123GXL board
+For debugging please use Cortex-Debug v1.12.1 Visual Studio Code Extension
