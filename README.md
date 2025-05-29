@@ -1,6 +1,6 @@
 Driver_TM4C123GH6PMI:
 
-The purpose of the repository is to develop Device Drivers for TM4C123GH6PMI microcontroller
+The purpose of the repository is to develop own custom RTOS from scratch using TM4C123GH6PMI microcontroller
 
 The microcontroller is present in the Evaluation Kit EK-TM4C123GXL. The drivers are developed from scratch. From the scratch development includes
     1. Writing Make file
