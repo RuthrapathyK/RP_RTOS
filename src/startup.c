@@ -40,7 +40,7 @@ __attribute__ ((weak)) void ADC0_Sequence_0_handler(void);
 __attribute__ ((weak)) void ADC0_Sequence_1_handler(void);
 __attribute__ ((weak)) void ADC0_Sequence_2_handler(void);
 __attribute__ ((weak)) void ADC0_Sequence_3_handler(void);
-__attribute__ ((weak)) void Watchdog_Timers_0_and_1_handler(void);
+__attribute__ ((weak)) void Watchdog_Timers_0_1_handler(void);
 __attribute__ ((weak)) void Timer_0A_16_32_handler(void);
 __attribute__ ((weak)) void Timer_0B_16_32_handler(void);
 __attribute__ ((weak)) void Timer_1A_16_32_handler(void);
@@ -117,9 +117,9 @@ extern uint8_t __e_data;
 extern uint8_t __s_bss;
 extern uint8_t __e_bss;
 
+__attribute__ ((section (".stack_pointer"))) const uint32_t Stack_Pointer = SRAM_START_ADDRESS+STACK_SIZE_IN_BYTES;
 
-__attribute__ ((section (".vector_table"))) uint32_t * vector_table[MAX_VECTOR] = {
-    (uint32_t *)SRAM_START_ADDRESS+STACK_SIZE_IN_BYTES, 
+__attribute__ ((section (".vector_table"))) uint32_t * vector_table[MAX_VECTOR] = { 
     (uint32_t *)&Reset_handler,                         
     (uint32_t *)&NMI_handler,
     (uint32_t *)&HardFault_handler,
@@ -153,7 +153,7 @@ __attribute__ ((section (".vector_table"))) uint32_t * vector_table[MAX_VECTOR] 
     (uint32_t *)&ADC0_Sequence_1_handler,
     (uint32_t *)&ADC0_Sequence_2_handler,
     (uint32_t *)&ADC0_Sequence_3_handler,
-    (uint32_t *)&Watchdog_Timers_0_and_1_handler,
+    (uint32_t *)&Watchdog_Timers_0_1_handler,
     (uint32_t *)&Timer_0A_16_32_handler,
     (uint32_t *)&Timer_0B_16_32_handler,
     (uint32_t *)&Timer_1A_16_32_handler,
@@ -281,16 +281,63 @@ void Reset_handler(void)
     //Initialize .data section with initial values at SRAM 
     for(uint32_t i = 0; i < &__e_data - &__s_data; i++)
     {
-        *(&__s_data+i) =*(&__e_text+i);
+        *(((uint8_t *)&__s_data) + i) =*(((uint8_t *)&__e_text) + i);
     }
 
     //Initialize .bss section with 0 at SRAM
     for(uint32_t i = 0; i < &__e_bss - &__s_bss; i++)
     {
-        *(&__s_bss+i) = 0;
+        *(((uint8_t *)&__s_bss) + i) = 0;
     }
 
     //Call main
     main();
 }
-
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void NMI_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void HardFault_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void MemManage_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void BusFault_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief Upon the exception occurrence the Processor will be in infinite loop. This will avoid unintended execution from memory
+ * 
+ */
+void UsageFault_handler(void)
+{
+    while(1);
+}
+/**
+ * @brief //TODO: Implement it for Scheduler
+ * 
+ */
+void PendSV_handler(void)
+{
+  
+}
