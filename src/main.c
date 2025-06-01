@@ -21,9 +21,14 @@ uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
 uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
 uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
+uint32_t SemObject = 1;
+
 void Task_A(void)
 {
   while(1){
+
+    semTake(&SemObject);
+
     for(uint32_t iter = 0; iter < 100 * 1000; iter++)
     {
       LED_RED_ON;
@@ -36,6 +41,9 @@ void Task_A(void)
 void Task_B(void)
 {
   while(1){
+
+    semGive(&SemObject);
+    
     for(uint32_t iter = 0; iter < 100 * 1000; iter++)
     {
       LED_BLUE_ON;

@@ -2,8 +2,13 @@
 #include "TM4C123GH6PM.h"
 #include "led.h"
 
+extern uint8_t volatile SemObject;
+
 void pushButton_Init(void)
 {
+   /* Enables Clock for Port F */
+   SYSCTL->RCGCGPIO =(1<<5);
+
    //Select GPIO as Alternate Functions
    GPIOF->AFSEL &= ~(1<<4);
 
@@ -37,6 +42,10 @@ void GPIO_Port_F_handler(void)
   // Clear the interrupt
   GPIOF->ICR |= (1<<4);
   
-  //Togle the LED
-  GPIOF->DATA ^= LED_GREEN;
+    // __asm volatile (
+    //     "LDR R0, =SemObject\n\t"
+    //     "LDREX R1, [R0]\n\t"
+    //     "MOV R1, #10\n\t"
+    //     "STREX R2, R1, [R0]\n\t"
+    // );
 }

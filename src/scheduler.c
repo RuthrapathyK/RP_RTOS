@@ -98,6 +98,53 @@ void __attribute__ ((naked))SysTick_handler(void)
     // Exit the ISR
     __asm("BX LR");
 }
+
+/**
+ * @brief The Function gets Exclusive access to the memory passed and decreaments it by 1
+ * 
+ * @param varObj Address of the variable for which value needs to be decreamented
+ */
+void semTake(uint32_t * varObj)
+{
+  // The argument will be by default stored in R0 for this compiler. 
+  // If it changes then next assembly codes will also change
+  
+  // Start of the assembly function(This is busy wait implementation)
+  __asm volatile (
+          "MOV R3, R0\n\t"         // Move the R0 value to R3 for further usage in assembly
+
+      "lockTry:\n\t"               // Branch Label 
+        "LDREX R0, [R3]\n\t"       // Load value at varObj into R0 by Exclusively tagging processor and memory
+        "CMP R0, #0\n\t"           // Compare with 0
+        "BEQ lockTry\n\t"          // If zero, retry
+        "SUB R1, R0, #1\n\t"       // If not equal to Zero then take the Token (R1 = R0 - 1)
+        "STREX R2, R1, [R3]\n\t"   // Try to store R1 back to varObj
+        "CMP R2, #0\n\t"           // Was store successful?
+        "BNE lockTry\n\t"          // If not successful retry from Branch Label
+    );
+}
+/**
+ * @brief The Function gets Exclusive access to the memory passed and increaments it by 1
+ * 
+ * @param varObj Address of the variable for which value needs to be Increamented
+ */
+void semGive(uint32_t * varObj)
+{
+  // The argument will be by default stored in R0 for this compiler. 
+  // If it changes then next assembly codes will also change
+  
+  // Start of the assembly function(This is busy wait implementation)
+  __asm volatile(
+    "MOV R3, R0\n\t"                   // Move the R0 value to R3 for further usage in assembly
+
+    "unlockTry:\n\t"                   // Branch Label 
+            "LDREX R0, [R3]\n\t"       // Load value at varObj into R0 by Exclusively tagging processor and memory
+            "ADD R1, R0, #1\n\t"       // Add 1 to the value
+            "STREX R2, R1, [R3]\n\t"   // Try to store R1 back to varObj
+            "CMP R2, #0\n\t"           // Was store successful?
+            "BNE unlockTry\n\t"        // If not successful retry from Branch Label
+  );
+}
 /**
  * @brief Delay created from Scheduler
  * 
