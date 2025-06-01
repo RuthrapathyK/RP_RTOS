@@ -5,7 +5,7 @@
 void LED_Init(uint32_t led)
 {
   /* Enables Clock for Port F */
-  SYSCTL->RCGCGPIO =(1<<5);
+  SYSCTL->RCGCGPIO |= (1<<5);
 
   /* Set the Pin Direction as Output */
   GPIOF->DIR |=(led);

@@ -7,7 +7,7 @@ extern uint8_t volatile SemObject;
 void pushButton_Init(void)
 {
    /* Enables Clock for Port F */
-   SYSCTL->RCGCGPIO =(1<<5);
+   SYSCTL->RCGCGPIO |= (1<<5);
 
    //Select GPIO as Alternate Functions
    GPIOF->AFSEL &= ~(1<<4);

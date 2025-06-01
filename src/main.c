@@ -26,7 +26,7 @@ uint32_t SemObject = 1;
 void Task_A(void)
 {
   while(1){
-
+    //TODO: If high prio task busy wait for semaphore which is taken by low prio task then the System is blocked
     semTake(&SemObject);
 
     for(uint32_t iter = 0; iter < 100 * 1000; iter++)
