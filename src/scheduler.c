@@ -6,14 +6,15 @@
 #include "timer.h"
 #include "led.h"
 
-uint8_t task_idx = 0;
+uint8_t CurTask_Idx = 0;
 static volatile bool f_schdInit = false;
 uint32_t * tem_sp = 0;
 uint32_t schIter = 0;
+
 extern uint32_t Max_SchTask;
 extern Task_type PrioTask_Table[MAX_TASK_LIMIT];
 extern volatile uint32_t SystemTime_Count;
-void OS_sem_IdleTrigger(void);
+
 /**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
  * 
@@ -58,10 +59,10 @@ void __attribute__ ((naked))SysTick_handler(void)
       __asm("MOV %0, SP":"=r" (tem_sp)::"%0");
 
       // Check if Stack Overflow occured for the current Task
-      ASSERT(tem_sp >= PrioTask_Table[task_idx].stack);
+      ASSERT(tem_sp >= PrioTask_Table[CurTask_Idx].stack);
 
       // Save the current Task's SP
-      PrioTask_Table[task_idx].stack_ptr = tem_sp;
+      PrioTask_Table[CurTask_Idx].stack_ptr = tem_sp;
     }
     else
     {
@@ -94,13 +95,13 @@ void __attribute__ ((naked))SysTick_handler(void)
     {
       if(PrioTask_Table[schIter].TaskState == Task_Ready)
       {
-       task_idx = schIter;
+       CurTask_Idx = schIter;
        break;
       }
     }
 
     // Get the next Task's SP
-    tem_sp = PrioTask_Table[task_idx].stack_ptr; 
+    tem_sp = PrioTask_Table[CurTask_Idx].stack_ptr; 
     
     // Load the next Task's SP to the SP register
     __asm("MOV SP, %0"::"r" (tem_sp) :"%0"); 
@@ -124,21 +125,33 @@ void semTake(uint32_t * varObj)
 
   // Start of the assembly function(This is busy wait implementation)
   __asm volatile (
-          "MOV R3, R0\n\t"         // Move the R0 value to R3 for further usage in assembly
+          "MOV R11, R0\n\t"         // Move the R0 value(ie. argument) to R11 for further usage in assembly
 
       "lockTry:\n\t"               // Branch Label 
-        "LDREX R0, [R3]\n\t"       // Load value at varObj into R0 by Exclusively tagging processor and memory
-        "CMP R0, #0\n\t"           // Compare with 0
-        "BEQ Copy_Idle\n\t"          // If zero, move to Copy_Idle
-        "SUB R1, R0, #1\n\t"       // If not equal to Zero then take the Token (R1 = R0 - 1)
-        "STREX R2, R1, [R3]\n\t"   // Try to store R1 back to varObj
-        "CMP R2, #0\n\t"           // Was store successful?
+        "LDREX R4, [R11]\n\t"       // Load value at varObj into R4 by Exclusively tagging processor and memory
+        "CMP R4, #0\n\t"           // Compare with 0
+        "BEQ OS_semSleep\n\t"      // If zero, move to OS_semSleep
+        "SUB R4, R4, #1\n\t"       // If not equal to Zero then take the Token (R1 = R0 - 1)
+        "STREX R5, R4, [R11]\n\t"   // Try to store R4 back to varObj
+        "CMP R5, #0\n\t"           // Was store successful?
         "BNE lockTry\n\t"          // If not successful retry from Branch Label
-
-      "Copy_Idle:\n\t"
-        "MOV R0, R3\n\t"    // Copy the varObj argument to R0 and move to Task to sleep state
-        "BX OS_sem_IdleTrigger\n\t"
+        "B SemTakeEnd\n\t"
     );
+
+__asm volatile("OS_semSleep:"); // Start of assembly label and the following C code belongs to this
+
+  /* Store the Address of the Semaphore Object in the corresponding Task's Priority Table*/
+  PrioTask_Table[CurTask_Idx].sync_primitive = varObj;
+
+  /* Change the task state to Sleep */
+  PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
+
+  /* Trigger the scheduler */
+  SCB->INTCTRL |= 1 << 26;
+
+  __asm volatile("B lockTry");
+
+  __asm volatile("SemTakeEnd:");
 }
 /**
  * @brief The Function gets Exclusive access to the memory passed and increaments it by 1
@@ -173,28 +186,11 @@ void semGive(uint32_t * varObj)
 void OS_delay(uint32_t mSec)
 {
   /* Note the Wakeup time */
-  PrioTask_Table[task_idx].nxtSchedTime = getSystemTime() + mSec; 
+  PrioTask_Table[CurTask_Idx].nxtSchedTime = getSystemTime() + mSec; 
   
   /* Change the task state to Sleep */
-  PrioTask_Table[task_idx].TaskState = Task_Sleep;
+  PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
   
-  /* Trigger the scheduler */
-  SCB->INTCTRL |= 1 << 26;
-}
-
-void * temp_ptr = 0;
-
-void OS_sem_IdleTrigger(void)
-{ 
- __asm volatile("LDR R1, =temp_ptr");
- __asm volatile("STR R0, [R1]");
-
-  /* Store the Address of the Semaphore Object in the corresponding Task's Priority Table*/
-  PrioTask_Table[task_idx].sync_primitive = temp_ptr;
-
-  /* Change the task state to Sleep */
-  PrioTask_Table[task_idx].TaskState = Task_Sleep;
-
   /* Trigger the scheduler */
   SCB->INTCTRL |= 1 << 26;
 }
