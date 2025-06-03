@@ -98,6 +98,8 @@ void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)()
 		.stack_size = stackSize_words,
 		.priority = prio,
 		.TaskfuncPtr = taskPtr,
+		.nxtSchedTime = 0,
+		.sync_primitive = NULL,
 		.TaskState = Task_Ready
 	};
 

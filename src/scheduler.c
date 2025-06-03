@@ -13,7 +13,7 @@ uint32_t schIter = 0;
 extern uint32_t Max_SchTask;
 extern Task_type PrioTask_Table[MAX_TASK_LIMIT];
 extern volatile uint32_t SystemTime_Count;
-
+void OS_sem_IdleTrigger(void);
 /**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
  * 
@@ -72,8 +72,21 @@ void __attribute__ ((naked))SysTick_handler(void)
     // Derive the States of all Tasks
     for(schIter = 0; schIter < Max_SchTask; schIter++)
     {
-      if((PrioTask_Table[schIter].TaskState == Task_Sleep) && (PrioTask_Table[schIter].nxtSchedTime <= SystemTime_Count))
-        PrioTask_Table[schIter].TaskState = Task_Ready;
+      if(PrioTask_Table[schIter].TaskState == Task_Sleep)
+      {
+        if(PrioTask_Table[schIter].sync_primitive != NULL)
+        {
+          if(*((uint32_t *)PrioTask_Table[schIter].sync_primitive) > 0)
+          {
+            PrioTask_Table[schIter].sync_primitive = NULL;
+            PrioTask_Table[schIter].TaskState = Task_Ready;
+          }
+        }
+        else if (PrioTask_Table[schIter].nxtSchedTime <= SystemTime_Count)
+        {
+          PrioTask_Table[schIter].TaskState = Task_Ready;
+        }
+      }
     }
 
     // Choose which task to schedule based on priority. If no task is in Ready state then schedule idleTask
@@ -108,7 +121,7 @@ void semTake(uint32_t * varObj)
 {
   // The argument will be by default stored in R0 for this compiler. 
   // If it changes then next assembly codes will also change
-  
+
   // Start of the assembly function(This is busy wait implementation)
   __asm volatile (
           "MOV R3, R0\n\t"         // Move the R0 value to R3 for further usage in assembly
@@ -116,11 +129,15 @@ void semTake(uint32_t * varObj)
       "lockTry:\n\t"               // Branch Label 
         "LDREX R0, [R3]\n\t"       // Load value at varObj into R0 by Exclusively tagging processor and memory
         "CMP R0, #0\n\t"           // Compare with 0
-        "BEQ lockTry\n\t"          // If zero, retry
+        "BEQ Copy_Idle\n\t"          // If zero, move to Copy_Idle
         "SUB R1, R0, #1\n\t"       // If not equal to Zero then take the Token (R1 = R0 - 1)
         "STREX R2, R1, [R3]\n\t"   // Try to store R1 back to varObj
         "CMP R2, #0\n\t"           // Was store successful?
         "BNE lockTry\n\t"          // If not successful retry from Branch Label
+
+      "Copy_Idle:\n\t"
+        "MOV R0, R3\n\t"    // Copy the varObj argument to R0 and move to Task to sleep state
+        "BX OS_sem_IdleTrigger\n\t"
     );
 }
 /**
@@ -132,7 +149,7 @@ void semGive(uint32_t * varObj)
 {
   // The argument will be by default stored in R0 for this compiler. 
   // If it changes then next assembly codes will also change
-  
+
   // Start of the assembly function(This is busy wait implementation)
   __asm volatile(
     "MOV R3, R0\n\t"                   // Move the R0 value to R3 for further usage in assembly
@@ -144,6 +161,9 @@ void semGive(uint32_t * varObj)
             "CMP R2, #0\n\t"           // Was store successful?
             "BNE unlockTry\n\t"        // If not successful retry from Branch Label
   );
+
+  /* Trigger the scheduler */
+  SCB->INTCTRL |= 1 << 26;
 }
 /**
  * @brief Delay created from Scheduler
@@ -158,6 +178,23 @@ void OS_delay(uint32_t mSec)
   /* Change the task state to Sleep */
   PrioTask_Table[task_idx].TaskState = Task_Sleep;
   
+  /* Trigger the scheduler */
+  SCB->INTCTRL |= 1 << 26;
+}
+
+void * temp_ptr = 0;
+
+void OS_sem_IdleTrigger(void)
+{ 
+ __asm volatile("LDR R1, =temp_ptr");
+ __asm volatile("STR R0, [R1]");
+
+  /* Store the Address of the Semaphore Object in the corresponding Task's Priority Table*/
+  PrioTask_Table[task_idx].sync_primitive = temp_ptr;
+
+  /* Change the task state to Sleep */
+  PrioTask_Table[task_idx].TaskState = Task_Sleep;
+
   /* Trigger the scheduler */
   SCB->INTCTRL |= 1 << 26;
 }

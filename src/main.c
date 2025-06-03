@@ -21,7 +21,7 @@ uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
 uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
 uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
 
-uint32_t SemObject = 1;
+uint32_t SemObject = 0;
 
 void Task_A(void)
 {
