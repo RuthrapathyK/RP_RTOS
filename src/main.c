@@ -26,10 +26,10 @@ uint32_t SemObject = 0;
 void Task_A(void)
 {
   while(1){
-    //TODO: If high prio task busy wait for semaphore which is taken by low prio task then the System is blocked
+
     semTake(&SemObject);
 
-    for(uint32_t iter = 0; iter < 100 * 1000; iter++)
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
       LED_RED_ON;
       LED_RED_OFF;
@@ -42,9 +42,9 @@ void Task_B(void)
 {
   while(1){
 
-    semGive(&SemObject);
+    semTake(&SemObject);
     
-    for(uint32_t iter = 0; iter < 100 * 1000; iter++)
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
       LED_BLUE_ON;
       LED_BLUE_OFF;
@@ -55,7 +55,11 @@ void Task_B(void)
 void Task_C(void)
 {
   while(1){
-    for(uint32_t iter = 0; iter < 100 * 1000; iter++)
+
+    semGive(&SemObject);
+    semGive(&SemObject);
+
+    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
     {
       LED_GREEN_ON;
       LED_GREEN_OFF;

@@ -75,14 +75,17 @@ void __attribute__ ((naked))SysTick_handler(void)
     {
       if(PrioTask_Table[schIter].TaskState == Task_Sleep)
       {
-        if(PrioTask_Table[schIter].sync_primitive != NULL)
+        // Check if the task is blocked due to Synchronization Primitive
+        if(PrioTask_Table[schIter].syncPrim != NULL)
         {
-          if(*((uint32_t *)PrioTask_Table[schIter].sync_primitive) > 0)
+          // Check if Synchrozination Resource is available
+          if(*((uint32_t *)PrioTask_Table[schIter].syncPrim) > 0)
           {
-            PrioTask_Table[schIter].sync_primitive = NULL;
+            PrioTask_Table[schIter].syncPrim = NULL;
             PrioTask_Table[schIter].TaskState = Task_Ready;
           }
         }
+        // Check if the task is blocked due to Delay
         else if (PrioTask_Table[schIter].nxtSchedTime <= SystemTime_Count)
         {
           PrioTask_Table[schIter].TaskState = Task_Ready;
@@ -127,31 +130,31 @@ void semTake(uint32_t * varObj)
   __asm volatile (
           "MOV R11, R0\n\t"         // Move the R0 value(ie. argument) to R11 for further usage in assembly
 
-      "lockTry:\n\t"               // Branch Label 
+      "lockTry:\n\t"                // Branch Label 
         "LDREX R4, [R11]\n\t"       // Load value at varObj into R4 by Exclusively tagging processor and memory
-        "CMP R4, #0\n\t"           // Compare with 0
-        "BEQ OS_semSleep\n\t"      // If zero, move to OS_semSleep
-        "SUB R4, R4, #1\n\t"       // If not equal to Zero then take the Token (R1 = R0 - 1)
+        "CMP R4, #0\n\t"            // Compare with 0
+        "BEQ OS_semSleep\n\t"       // If zero, move to OS_semSleep
+        "SUB R4, R4, #1\n\t"        // If not equal to Zero then take the Token (R1 = R0 - 1)
         "STREX R5, R4, [R11]\n\t"   // Try to store R4 back to varObj
-        "CMP R5, #0\n\t"           // Was store successful?
-        "BNE lockTry\n\t"          // If not successful retry from Branch Label
-        "B SemTakeEnd\n\t"
+        "CMP R5, #0\n\t"            // Was store successful?
+        "BNE lockTry\n\t"           // If not successful retry from Branch Label
+        "B SemTakeEnd\n\t"          // Branch to completion
     );
 
 __asm volatile("OS_semSleep:"); // Start of assembly label and the following C code belongs to this
 
   /* Store the Address of the Semaphore Object in the corresponding Task's Priority Table*/
-  PrioTask_Table[CurTask_Idx].sync_primitive = varObj;
+  PrioTask_Table[CurTask_Idx].syncPrim = varObj;
 
   /* Change the task state to Sleep */
   PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
 
   /* Trigger the scheduler */
-  SCB->INTCTRL |= 1 << 26;
+  SYSTICK_TRIGGER;
 
-  __asm volatile("B lockTry");
+  __asm volatile("B lockTry"); // Retry Locking once the Semaphore is released
 
-  __asm volatile("SemTakeEnd:");
+  __asm volatile("SemTakeEnd:"); // This is the label to execute the closing of instructions
 }
 /**
  * @brief The Function gets Exclusive access to the memory passed and increaments it by 1
@@ -163,7 +166,7 @@ void semGive(uint32_t * varObj)
   // The argument will be by default stored in R0 for this compiler. 
   // If it changes then next assembly codes will also change
 
-  // Start of the assembly function(This is busy wait implementation)
+  // Start of the assembly function
   __asm volatile(
     "MOV R3, R0\n\t"                   // Move the R0 value to R3 for further usage in assembly
 
@@ -176,7 +179,7 @@ void semGive(uint32_t * varObj)
   );
 
   /* Trigger the scheduler */
-  SCB->INTCTRL |= 1 << 26;
+  SYSTICK_TRIGGER;
 }
 /**
  * @brief Delay created from Scheduler
@@ -192,5 +195,34 @@ void OS_delay(uint32_t mSec)
   PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
   
   /* Trigger the scheduler */
-  SCB->INTCTRL |= 1 << 26;
+  SYSTICK_TRIGGER;
+}
+/**
+ * @brief Precise Delay created from Scheduler
+ *       Note: This delay will include Task Execution time also in the delay
+ *       Example: If tast executes for 200ms and Task calls this delay of 1000ms then actual delay it produces is 800ms
+ * 
+ * @param mSec 
+ */
+void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec)
+{
+  /* Update the next Time stamp */
+  *startStamp += mSec;
+
+  /* Note the Wakeup time */
+  PrioTask_Table[CurTask_Idx].nxtSchedTime = *startStamp; 
+
+  /* Check if the Timer is already expired */
+  if(PrioTask_Table[CurTask_Idx].nxtSchedTime > getSystemTime())
+  {
+      /* Change the task state to Sleep */
+      PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep;
+      
+      /* Trigger the scheduler */
+      SYSTICK_TRIGGER;
+  }
+  else{
+    /* No context switch */
+  }
+
 }
