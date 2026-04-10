@@ -19,13 +19,7 @@ void delayTimer_Init(void);
  * @param mSec delay time in milli-seconds
  */
 void delayTimer(uint32_t mSec);
-/**
- * @brief The function is used to create a blocking delay. It used traditional for loop
- *        Note: The maximum delay it can generate is 268435ms
- * 
- * @param mSec delay time in approximate milli-seconds
- */
-void delayLoop(uint32_t mSec);
+
 /**
  * @brief The function is used to initialize the TIMER 0 in Periodic Downcounting modes.
  *        This will also initialize the TIMER 0 in concatenation mode (ie. as a 32bit Timer)
@@ -33,7 +27,7 @@ void delayLoop(uint32_t mSec);
  * 
  * @param mSec Periodic counter increament time
  */
-void SystemTimer_Init(uint32_t mSec);
+void SystemTimer_Start(uint32_t mSec);
 /**
  * @brief The Function creates a delay of input time in milliseconds without blocking the Timer Peripheral
  * 

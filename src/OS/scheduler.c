@@ -3,22 +3,37 @@
 #include "TM4C123GH6PM.h"
 #include "tasks.h"
 #include "common.h"
-#include "timer.h"
-#include "led.h"
+#include "../Drivers/Timer/timer.h"
 #include "semaphores.h"
 #include "mutex.h"
+#include "../src/Services/Debug/testpin.h"
 
-uint8_t CurTask_Idx = 0;
+#define IDLE_TASK_STACK_SIZE 50
+
+static volatile uint8_t CurTask_Idx = 0;
 static volatile bool f_schdInit = false;
-uint32_t * tem_sp = 0;
-uint32_t schIter = 0;
-Task_type temp_Task;
-Mutex_Type *mutex = 0;
-uint32_t tmp_TaskIdx = 0;
+static uint32_t * tem_sp = 0;
+static volatile uint32_t schIter = 0;
+static volatile Task_type temp_Task;
+static volatile Mutex_Type *t_mutex = 0;
+static volatile uint32_t tmp_TaskIdx = 0;
+static uint32_t IdleTask_Stack[IDLE_TASK_STACK_SIZE]={0};
 
 extern uint32_t Max_SchTask;
 extern Task_type PrioTask_Table[MAX_TASK_LIMIT];
 extern volatile uint32_t SystemTime_Count;
+
+/**
+ * @brief Idle task that runs when no other task is in Ready state
+ *        Used to toggle test pin for debugging purposes
+ */
+void OS_IdleTask(void)
+{
+  while(1){
+    TESTPIN_ON;
+    TESTPIN_OFF;
+  }
+}
 
 /**
  * @brief The function Intializes Scheduler that uses Systick Timer as Timer source
@@ -27,10 +42,20 @@ extern volatile uint32_t SystemTime_Count;
  *        Note: Scheduler Algorithm will take ~9.5us to complete execution. So choose useconds > 100
  *              The max value is 4194303(i.e 4.194 seconds) 
  */
-void scheduler_Init(uint32_t useconds)
+void OS_SchedulerRun(uint32_t useconds)
 {
   /* Check for valid range of useconds */
   ASSERT((useconds >= 100) && (useconds <= 4194303)); // 100 is decided by scheduler execution time and 4194303 * 4 is the max value that can be loaded in STRELOAD register for 24bit timer
+
+    /* Set the Systick and PendSV to have Priority 1 (ie.Scheduler should be the Least Priority interrupt and other interrupts are High Priority) */
+  SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
+  SCB->SYSPRI3 &= ~(0x07 << 21);  // PendSV
+
+  SCB->SYSPRI3 |= (0x01 << 29); // SysTick
+  SCB->SYSPRI3 |= (0x01 << 21); // PendSV
+
+  /* Idle task should have the Least priority than any other tasks created */
+  OS_CreateTask(IdleTask_Stack,IDLE_TASK_STACK_SIZE,&OS_IdleTask, 255);
 
   /* Load the Reload Value */
   SysTick->STRELOAD = (useconds * 4);
@@ -107,50 +132,50 @@ void __attribute__ ((naked))SysTick_handler(void)
         {
           if(PrioTask_Table[schIter].Task_Primitive != NULL)
           {
-            mutex = (Mutex_Type *)PrioTask_Table[schIter].Task_Primitive;
+            t_mutex = (Mutex_Type *)PrioTask_Table[schIter].Task_Primitive;
 
             // Check if Priority inheritance operation is triggered
-            if(mutex->PrioInherit_Status == Inherit_PI_BoostPriority)
+            if(t_mutex->PrioInherit_Status == Inherit_PI_BoostPriority)
             {
               // Change the Priority of Owner task to the High Priority Task which claims Mutex by Swapping
-              temp_Task = PrioTask_Table[mutex->Owner_TaskIdx];
-              PrioTask_Table[mutex->Owner_TaskIdx] = PrioTask_Table[mutex->HighPrio_TaskIdx];
-              PrioTask_Table[mutex->HighPrio_TaskIdx] = temp_Task;
+              temp_Task = PrioTask_Table[t_mutex->Owner_TaskIdx];
+              PrioTask_Table[t_mutex->Owner_TaskIdx] = PrioTask_Table[t_mutex->HighPrio_TaskIdx];
+              PrioTask_Table[t_mutex->HighPrio_TaskIdx] = temp_Task;
 
               // Update the Owner and High Priority Task Index
-              tmp_TaskIdx = mutex->Owner_TaskIdx;
-              mutex->Owner_TaskIdx = mutex->HighPrio_TaskIdx;
-              mutex->HighPrio_TaskIdx = tmp_TaskIdx;
+              tmp_TaskIdx = t_mutex->Owner_TaskIdx;
+              t_mutex->Owner_TaskIdx = t_mutex->HighPrio_TaskIdx;
+              t_mutex->HighPrio_TaskIdx = tmp_TaskIdx;
 
               // Change the status of the Priority Inheritance operation status
-              mutex->PrioInherit_Status = Inherit_PI_NoOperation;
+              t_mutex->PrioInherit_Status = Inherit_PI_NoOperation;
             }
-            else if(mutex->PrioInherit_Status == Inherit_UnBoost_Priority)
+            else if(t_mutex->PrioInherit_Status == Inherit_UnBoost_Priority)
             {
               // Change the Priority of Owner task to its original Priority by Swapping
-              temp_Task = PrioTask_Table[mutex->Owner_TaskIdx];
-              PrioTask_Table[mutex->Owner_TaskIdx] = PrioTask_Table[mutex->HighPrio_TaskIdx];
-              PrioTask_Table[mutex->HighPrio_TaskIdx] = temp_Task;
+              temp_Task = PrioTask_Table[t_mutex->Owner_TaskIdx];
+              PrioTask_Table[t_mutex->Owner_TaskIdx] = PrioTask_Table[t_mutex->HighPrio_TaskIdx];
+              PrioTask_Table[t_mutex->HighPrio_TaskIdx] = temp_Task;
 
               // Update the Owner and High Priority Task Index
-              tmp_TaskIdx = mutex->Owner_TaskIdx;
-              mutex->Owner_TaskIdx = mutex->HighPrio_TaskIdx;
-              mutex->HighPrio_TaskIdx = tmp_TaskIdx;
+              tmp_TaskIdx = t_mutex->Owner_TaskIdx;
+              t_mutex->Owner_TaskIdx = t_mutex->HighPrio_TaskIdx;
+              t_mutex->HighPrio_TaskIdx = tmp_TaskIdx;
 
               // Change the status of the Priority Inheritance operation
-              mutex->PrioInherit_Status = Inherit_PI_NoOperation;
+              t_mutex->PrioInherit_Status = Inherit_PI_NoOperation;
 
               // Clear the Task_Primitive to NULL
-              PrioTask_Table[mutex->HighPrio_TaskIdx].Task_Primitive = NULL;
+              PrioTask_Table[t_mutex->HighPrio_TaskIdx].Task_Primitive = NULL;
               
               // Change the Task State to Ready
-              PrioTask_Table[mutex->HighPrio_TaskIdx].TaskState = Task_Ready;
+              PrioTask_Table[t_mutex->HighPrio_TaskIdx].TaskState = Task_Ready;
 
               // ReInitialize the PriorityInheritance's status of the Mutex */
-              mutex->PrioInherit_Status = Inherit_No_PI;
+              t_mutex->PrioInherit_Status = Inherit_No_PI;
             }
             // Check if the Mutex is in Unlocked state
-            else if(mutex->Mutex_State == Mutex_Unlocked)
+            else if(t_mutex->Mutex_State == Mutex_Unlocked)
             {
               // Clear the Task_Primitive to NULL
               PrioTask_Table[schIter].Task_Primitive = NULL;
@@ -221,7 +246,7 @@ void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec)
   PrioTask_Table[CurTask_Idx].nxtSchedTime = *startStamp; 
 
   /* Check if the Timer is already expired */
-  if(PrioTask_Table[CurTask_Idx].nxtSchedTime > getSystemTime())
+  if(PrioTask_Table[CurTask_Idx].nxtSchedTime >= getSystemTime())
   {
       /* Change the task state to Sleep */
       PrioTask_Table[CurTask_Idx].TaskState = Task_Sleep_Delay;
@@ -240,7 +265,7 @@ void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec)
  * 
  * @return uint8_t Index of the current task.
  */
-uint8_t getCurrent_TaskIdx(void)
+uint8_t OS_getCurrent_TaskIdx(void)
 {
 	return CurTask_Idx;
 }

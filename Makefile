@@ -1,5 +1,5 @@
 CC             =  arm-none-eabi-gcc
-CFLAGS         =  -c -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+CFLAGS         =  -c -g -O0 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -pedantic
 OBJCOPY        =  arm-none-eabi-objcopy
 OBJDUMP        =  arm-none-eabi-objdump
 
@@ -17,31 +17,31 @@ OPENOCD_FLASHING_COMMANDS = $(OPENOCD_INIT) $(OPENOCD_HALT) $(OPENOCD_FLASH) #$(
 
 VPATH = src;inc;build
 
-# Rules starts here
-build: clean main.o startup.o led.o timer.o button.o scheduler.o tasks.o semaphores.o mutex.o out.elf out.bin out.hex out.s
+# Recursively find all .c files in src/ folder and all subdirectories
+SOURCES := $(shell powershell -Command "Get-ChildItem -Path '$(SRC_FOLDER)' -Filter '*.c' -Recurse | ForEach-Object { Write-Output $$_.FullName }")
+OBJECTS = $(addprefix $(BUILD_FOLDER)/, $(notdir $(SOURCES:.c=.o)))
 
-# Generate Object Files
-main.o: main.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-led.o: led.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-startup.o: startup.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-timer.o: timer.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-button.o: button.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-scheduler.o: scheduler.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-tasks.o: tasks.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-semaphores.o: semaphores.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
-mutex.o: mutex.c
-	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $(BUILD_FOLDER)/$@
+# Generic pattern rule: compile all .c files from any location in src folder and subdirectories
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/*/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/*/*/*/*/%.c
+	$(CC) $(CFLAGS) -I$(INC_FOLDER) $< -o $@
+
+# Rules starts here
+build: clean $(OBJECTS) out.elf out.bin out.hex out.s
 
 # Link the object files and generate .map file
-out.elf:$(BUILD_FOLDER)/main.o $(BUILD_FOLDER)/startup.o $(BUILD_FOLDER)/led.o $(BUILD_FOLDER)/timer.o $(BUILD_FOLDER)/button.o $(BUILD_FOLDER)/scheduler.o $(BUILD_FOLDER)/tasks.o $(BUILD_FOLDER)/semaphores.o $(BUILD_FOLDER)/mutex.o
+out.elf: $(OBJECTS)
 	$(CC) -T linkerscript.ld -nostdlib $^ -o $(BUILD_DIR)$@ -Wl,-Map=$(BUILD_DIR)out.map 
 
 # Generate Binary executable

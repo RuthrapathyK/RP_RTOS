@@ -8,7 +8,7 @@
  * 
  * @param useconds Frequency of the Systick Interrupt Generation in micro-seconds
  */
-void scheduler_Init(uint32_t useconds);
+void OS_SchedulerRun(uint32_t useconds);
 
 /**
  * @brief This function generates Scheduler delay
@@ -30,6 +30,6 @@ void OS_cycleDelay(uint32_t * startStamp, uint32_t mSec);
  * 
  * @return uint8_t Index of the current task.
  */
-uint8_t getCurrent_TaskIdx(void);
+uint8_t OS_getCurrent_TaskIdx(void);
 
 #endif

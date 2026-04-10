@@ -62,21 +62,7 @@ void delayTimer(uint32_t mSec)
   /* Ensure Timer 0 is disabled */
   TIMER0->CTL &= ~((1<<0) | (1<<8));
 }
-/**
- * @brief The function is used to create a blocking delay. It used traditional for loop
- * 
- * @param mSec delay time in approximate milli-seconds
- */
-void delayLoop(uint32_t mSec)
-{
-  for (volatile uint32_t i = 0; i < mSec ; i++)
-  {
-    for(volatile uint32_t j =0; j < 500; j++)
-    {
-      __asm("NOP");
-    }
-  }
-}
+
 /**
  * @brief System Timer ISR Handler. This will be called every 1ms
  * 
@@ -96,7 +82,7 @@ void Timer_0A_16_32_handler(void)
  * 
  * @param mSec Periodic counter increament time
  */
-void SystemTimer_Init(uint32_t mSec)
+void SystemTimer_Start(uint32_t mSec)
 {
   /* Check of Preconditions */
   ASSERT(mSec <= 268435);

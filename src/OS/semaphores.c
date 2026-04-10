@@ -31,10 +31,10 @@ static void Sem_Take(uint32_t *current_count, Semaphore_Type *semaphore)
 __asm volatile("Sem_Sleep:"); // Start of assembly label and the following C code belongs to this
 
   /* Store the Address of the Semaphore Object in the corresponding Task's Priority Table*/
-  PrioTask_Table[getCurrent_TaskIdx()].Task_Primitive = semaphore;
+  PrioTask_Table[OS_getCurrent_TaskIdx()].Task_Primitive = semaphore;
 
   /* Change the task state to Sleep */
-  PrioTask_Table[getCurrent_TaskIdx()].TaskState = Task_Sleep_Semaphore;
+  PrioTask_Table[OS_getCurrent_TaskIdx()].TaskState = Task_Sleep_Semaphore;
 
   /* Trigger the scheduler */
   SYSTICK_TRIGGER;
@@ -42,6 +42,9 @@ __asm volatile("Sem_Sleep:"); // Start of assembly label and the following C cod
   __asm volatile("B Sem_TryLock"); // Retry Locking once the Task has waked up from Sleep 
 
   __asm volatile("Sem_TakeEnd:"); // This is the label to execute the closing of instructions
+
+    /* Unused */
+  (void)current_count;
 }
 
 /**
@@ -72,6 +75,10 @@ static void Sem_Give(uint32_t *current_count, uint32_t max_val)
 
   /* Trigger the scheduler */
   SYSTICK_TRIGGER;
+
+  /* Unused */
+  (void)current_count;
+  (void)max_val;
 }
 /**
  * @brief Initializes the semaphore object with the specified current and maximum count values.

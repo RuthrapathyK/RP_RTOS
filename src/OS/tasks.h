@@ -32,6 +32,6 @@ typedef struct {
  * @param taskPtr Address of the Task Function
  * @param prio Priority of the Task. 1 is the highest priority and 255 is the lowest priority
  */
-void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio);
+void OS_CreateTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio);
 
 #endif

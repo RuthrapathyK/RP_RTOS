@@ -15,7 +15,7 @@ extern Task_type PrioTask_Table[MAX_TASK_LIMIT];
  */
 static void Priority_Boost(Mutex_Type *mutex)
 {
-  uint32_t cur_idx = getCurrent_TaskIdx();
+  uint32_t cur_idx = OS_getCurrent_TaskIdx();
 
   // Check if Owner Tasks's Priority(i.e Index) is greater than Current Index
   if(cur_idx < mutex->Owner_TaskIdx)
@@ -77,10 +77,10 @@ __asm volatile("Mutex_Sleep:"); // Start of assembly label and the following C c
   Priority_Boost(mutex);
 
   /* Load the Mutex in Task Primitive */
-  PrioTask_Table[getCurrent_TaskIdx()].Task_Primitive = mutex;
+  PrioTask_Table[OS_getCurrent_TaskIdx()].Task_Primitive = mutex;
 
   /* Change the task state to Sleep */
-  PrioTask_Table[getCurrent_TaskIdx()].TaskState = Task_Sleep_Mutex;
+  PrioTask_Table[OS_getCurrent_TaskIdx()].TaskState = Task_Sleep_Mutex;
 
   /* Trigger the scheduler */
   SYSTICK_TRIGGER;
@@ -88,6 +88,9 @@ __asm volatile("Mutex_Sleep:"); // Start of assembly label and the following C c
   __asm volatile("B Mutex_TryLock"); // Retry Locking once the Task has waked up from Sleep 
 
   __asm volatile("Mutex_Take_End:"); // This is the label to execute the closing of instructions
+
+  /* Unused */
+  (void)mutex_state;
 }
 
 /**
@@ -117,6 +120,9 @@ static void Mutex_Give(uint32_t * mutex_state, Mutex_Type *mutex)
 
   /* Trigger the scheduler */
   SYSTICK_TRIGGER;
+
+  /* Unused */
+  (void)mutex_state;
 }
 
 /**
@@ -158,7 +164,7 @@ void Mutex_Lock(Mutex_Type *mutex)
     Mutex_Take((uint32_t *) &mutex->Mutex_State, mutex);
 
     /* Make Current Task as the Owner of the Mutex */
-    mutex->Owner_TaskIdx = getCurrent_TaskIdx();
+    mutex->Owner_TaskIdx = OS_getCurrent_TaskIdx();
 
 }
 
@@ -178,7 +184,7 @@ void Mutex_Unlock(Mutex_Type *mutex)
     ASSERT(mutex->isInitialized == true);
 
     /* Check if The Current Task is the Owner of the Mutex */
-    if(mutex->Owner_TaskIdx == getCurrent_TaskIdx())
+    if(mutex->Owner_TaskIdx == OS_getCurrent_TaskIdx())
         Mutex_Give((uint32_t *) &mutex->Mutex_State, mutex); // Unlock the Mutex
     else
         ASSERT(0); // Assert the Program and indicate that an attempt to Unlock a Mutex from Different Owner

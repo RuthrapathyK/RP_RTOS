@@ -1,133 +1,101 @@
 #include "common.h"
-#include "led.h"
-#include "timer.h"
-#include "button.h"
-#include "common.h"
-#include "scheduler.h"
-#include "tasks.h"
-#include "semaphores.h"
-#include "mutex.h"
+#include "OS/scheduler.h"
+#include "OS/tasks.h"
+#include "../src/Services/Debug/testpin.h"
+#include "../src/Drivers/Timer/timer.h"
+#include "../src/BSP/Button/button.h"
+#include "../src/Drivers/NVIC/nvic.h"
+#include "../src/Drivers/PinMux/pinconfig.h"
 
 #define SCHEDULE_TIME_MS 10
 
 #define SCHEDULE_TIME_FACTOR 1000
 #define SCHEDULE_TIME_US (SCHEDULE_TIME_FACTOR * SCHEDULE_TIME_MS)
 
-#define TASK_A_STACK_SIZE 250
-#define TASK_B_STACK_SIZE 250
-#define TASK_C_STACK_SIZE 250
-#define IDLE_TASK_STACK_SIZE 50
+uint32_t TaskStack_1[200];
+uint32_t TaskStack_2[200];
+uint32_t TaskStack_3[200];
+uint32_t counter_1 = 0;
+uint32_t counter_2 = 0;
+uint32_t counter_3 = 0;
 
-uint32_t stack_TaskA[TASK_A_STACK_SIZE]={0};
-uint32_t stack_TaskB[TASK_B_STACK_SIZE]={0};
-uint32_t stack_TaskC[TASK_C_STACK_SIZE]={0};
-uint32_t stack_IdleTask[IDLE_TASK_STACK_SIZE]={0};
-
-Semaphore_Type SemObject;
-Mutex_Type MutexObject;
-
-void Task_A(void)
+void Task_1(void)
 {
-  while(1){
-    Mutex_Lock(&MutexObject);
-    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
-    {
-      LED_RED_TOGGLE;
-    }
-    Mutex_Unlock(&MutexObject);
-    OS_delay(1000); 
-  }
-}
-
-void Task_B(void)
-{
-  while(1){
-    Mutex_Lock(&MutexObject);
-    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
-    {
-      LED_BLUE_TOGGLE;
-    }
-    Mutex_Unlock(&MutexObject);
+  while(1)
+  {
+    counter_1++;
     OS_delay(1000);
   }
 }
-void Task_C(void)
+
+void Task_2(void)
 {
-  while(1){
-    Mutex_Lock(&MutexObject);
-    for(uint32_t iter = 0; iter < 200 * 1000; iter++)
-    {
-      LED_GREEN_TOGGLE;
-    }
-    Mutex_Unlock(&MutexObject);
+  while(1)
+  {
+    counter_2++;
     OS_delay(1000);
-  }    
-}
-void IdleTask(void)
-{
-  while(1){
-    TESTPIN_ON;
-    TESTPIN_OFF;
   }
 }
-void main()
+
+void Task_3(void)
 {
-  /* Initialize the LED */
-  LED_Init(LED_RED);
-  LED_Init(LED_BLUE);
-  LED_Init(LED_GREEN);
+  while(1)
+  {
+    counter_3++;
+    OS_delay(1000);
+  }
+}
+
+void Peripherals_Init(void)
+{
   TestPin_Init();
+  PushButton_Init();
+}
+
+void Pins_Init(void)
+{
+  /* Enable Push Button Pin */
+  Pin_Config(Port_PF, 4, PF4_GPIO);
+}
+
+void Serices_Init(void)
+{
+  /* Add Task for Scheduling */
+  OS_CreateTask(TaskStack_1, sizeof(TaskStack_1) / 4, &Task_1, 1);
+  OS_CreateTask(TaskStack_2, sizeof(TaskStack_2) / 4, &Task_2, 1);
+  OS_CreateTask(TaskStack_3, sizeof(TaskStack_3) / 4, &Task_3, 1);
 
   /* Initialize the System Timer */
-  SystemTimer_Init(1);
+  SystemTimer_Start(1);
+}
 
-  /* Add Task for Scheduling */
-  createTask(stack_TaskC,TASK_C_STACK_SIZE,&Task_C, 3);
-  createTask(stack_TaskB,TASK_B_STACK_SIZE,&Task_B, 2);
-  createTask(stack_TaskA,TASK_A_STACK_SIZE,&Task_A, 1);
-  
-  /* Set the Systick and PendSV to have Priority 1 (ie.Scheduler should be the Least Priority interrupt and other interrupts are High Priority) */
-  SCB->SYSPRI3 &= ~(0x07 << 29);  // SysTick
-  SCB->SYSPRI3 &= ~(0x07 << 21);  // PendSV
+void Interrupts_Init(void)
+{
+  /* Disable Global Interrupt */
+  __disable_irq();
 
-  SCB->SYSPRI3 |= (0x01 << 29); // SysTick
-  SCB->SYSPRI3 |= (0x01 << 21); // PendSV
+  /* Enable/Disable Nested Vector Interrupts */
+  NVIC_enableInterrupt(GPIO_Port_F_IRQ);
 
-  pushButton_Init();
+  /* Enable Global Interrupt */
+  __enable_irq();
+}
 
-  /* Idle task should have the Least priority than any other tasks created */
-  createTask(stack_IdleTask,IDLE_TASK_STACK_SIZE,&IdleTask, 255);
+int main()
+{
 
-  /* Initialize the Mutex */
-  Mutex_Init(&MutexObject);
-
-  /* Initialize the Semaphore */
-  Sem_Init(&SemObject, 0, 2);
+  Peripherals_Init();
+  Pins_Init();
+  Serices_Init();
+  Interrupts_Init();
 
   /* Initialize and start the Scheduler */
-  scheduler_Init(SCHEDULE_TIME_US);
+  OS_SchedulerRun(SCHEDULE_TIME_US);
 
   while(1)
   {
     /* This point shall never be reached*/    
   }
-}
 
-/**
- * @brief PB3 is the Test Pin
- * 
- */
-void TestPin_Init(void)
-{
-  /* Enables Clock for Port F */
-  SYSCTL->RCGCGPIO |=(1<<1);
-
-  /* Set the Pin Direction as Output */
-  GPIOB->DIR |=(1<<3);
-  
-  /*Select GPIO as pin Function */
-  GPIOB->AFSEL &= ~(1<<3);
-  
-  /* Configure as Digital I/O */
-  GPIOB->DEN |=(1<<3);
+  return 0;
 }

@@ -86,7 +86,7 @@ static void Add_to_PrioTaskTable(Task_type * taskObject)
  * @param taskPtr Address of the Task Function
  * @param prio Priority of the Task. 1 is the highest priority and 255 is the lowest priority
  */
-void createTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio)
+void OS_CreateTask(uint32_t *stackAddr, uint32_t stackSize_words, void (*taskPtr)(), uint8_t prio)
 {
 	// Check for valid Task Input parameters
 	ASSERT((stackAddr != NULL) && (taskPtr != NULL) && (stackSize_words > 16) && (Max_SchTask < MAX_TASK_LIMIT) && (prio > 0));
