@@ -1,5 +1,5 @@
 #include "mutex.h"
-#include "semaphores.h"
+#include "../src/OS/Semaphore/semaphores.h"
 
 #define DEFAULT_MUTEX_OWNER 255
 

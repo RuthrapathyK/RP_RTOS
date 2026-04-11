@@ -4,8 +4,8 @@
 
 #include "TM4C123GH6PM.h"
 #include "common.h"
-#include "tasks.h"
-#include "scheduler.h"
+#include "../src/OS/Tasks/tasks.h"
+#include "../src/OS/Scheduler/scheduler.h"
 
 
 typedef struct{

@@ -1,11 +1,11 @@
 
 #include "scheduler.h"
 #include "TM4C123GH6PM.h"
-#include "tasks.h"
+#include "../src/OS/Tasks/tasks.h"
 #include "common.h"
-#include "../Drivers/Timer/timer.h"
-#include "semaphores.h"
-#include "mutex.h"
+#include "../src/Drivers/Timer/timer.h"
+#include "../src/OS/Semaphore/semaphores.h"
+#include "../src/OS/Mutex/mutex.h"
 #include "../src/Services/Debug/testpin.h"
 
 #define IDLE_TASK_STACK_SIZE 50

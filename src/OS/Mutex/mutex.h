@@ -4,7 +4,7 @@
 
 #include "TM4C123GH6PM.h"
 #include "common.h"
-#include "tasks.h"
+#include "../src/OS/Tasks/tasks.h"
 
 typedef enum{
     Mutex_Locked = 0,

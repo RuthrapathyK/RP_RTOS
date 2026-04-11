@@ -1,11 +1,12 @@
 #include "common.h"
-#include "OS/scheduler.h"
-#include "OS/tasks.h"
+#include "OS/Scheduler/scheduler.h"
+#include "OS/Tasks/tasks.h"
 #include "../src/Services/Debug/testpin.h"
 #include "../src/Drivers/Timer/timer.h"
 #include "../src/BSP/Button/button.h"
 #include "../src/Drivers/NVIC/nvic.h"
 #include "../src/Drivers/PinMux/pinconfig.h"
+#include "../src/BSP/LED/led.h"
 
 #define SCHEDULE_TIME_MS 10
 
@@ -21,27 +22,33 @@ uint32_t counter_3 = 0;
 
 void Task_1(void)
 {
+  LED_Init(LED_RED);
   while(1)
   {
     counter_1++;
+    LED_RED_TOGGLE;
     OS_delay(1000);
   }
 }
 
 void Task_2(void)
 {
+  LED_Init(LED_BLUE);
   while(1)
   {
     counter_2++;
+    LED_BLUE_TOGGLE;
     OS_delay(1000);
   }
 }
 
 void Task_3(void)
 {
+  LED_Init(LED_GREEN);
   while(1)
   {
     counter_3++;
+    LED_GREEN_TOGGLE;
     OS_delay(1000);
   }
 }
@@ -83,7 +90,6 @@ void Interrupts_Init(void)
 
 int main()
 {
-
   Peripherals_Init();
   Pins_Init();
   Serices_Init();
